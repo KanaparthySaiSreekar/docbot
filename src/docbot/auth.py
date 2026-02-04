@@ -166,24 +166,11 @@ async def logout(request: Request):
     return RedirectResponse(url="/")
 
 
-@router.get("/error")
-async def error(request: Request):
-    """
-    Display error page (rendered by main.py template).
-
-    This route exists to be referenced in redirects, but the actual
-    rendering is handled by main.py's error template route.
-    """
-    # This will be handled by main.py template rendering
-    pass
-
-
 async def require_auth(request: Request) -> dict[str, Any]:
     """
     FastAPI dependency that checks for authenticated session.
 
-    Returns user dict if authenticated, otherwise redirects to landing page
-    for GET requests or returns 401 for API requests.
+    Returns user dict if authenticated, otherwise raises HTTPException.
 
     AUTH-03: No allowlist check - any Google account works.
 
@@ -194,6 +181,9 @@ async def require_auth(request: Request) -> dict[str, Any]:
 
     Returns:
         dict: User data with email, name, picture
+
+    Raises:
+        HTTPException: 401 if not authenticated
     """
     user = request.session.get('user')
 
@@ -203,13 +193,9 @@ async def require_auth(request: Request) -> dict[str, Any]:
             extra={"path": request.url.path, "method": request.method}
         )
 
-        # Redirect to landing page for GET requests
-        if request.method == "GET":
-            return RedirectResponse(url="/", status_code=307)
-        else:
-            # Return 401 for API requests
-            from fastapi import HTTPException
-            raise HTTPException(status_code=401, detail="Not authenticated")
+        # Raise 401 for all requests
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     # AUTH-03: No allowlist check - any Google account accepted
     return user
