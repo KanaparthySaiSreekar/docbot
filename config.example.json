@@ -1,0 +1,60 @@
+{
+  "_comment": "DocBot Configuration Template - Copy to config.test.json or config.prod.json",
+  "clinic": {
+    "name": "Dr. Smith's Clinic",
+    "address": "123 Healthcare Street, Medical District, Mumbai, Maharashtra 400001",
+    "phone": "+91 98765 43210",
+    "doctor_name": "Dr. Rajesh Kumar Smith",
+    "doctor_degree": "MBBS, MD",
+    "doctor_registration": "MCI-12345-2020",
+    "signature_image_path": "assets/signature.png"
+  },
+  "schedule": {
+    "_comment_working_days": "0=Monday through 6=Sunday. Example: [0,1,2,3,4,5] = Mon-Sat",
+    "working_days": [0, 1, 2, 3, 4, 5],
+    "start_time": "09:00",
+    "end_time": "17:00",
+    "break_start": "13:00",
+    "break_end": "14:00",
+    "slot_duration_minutes": 15,
+    "max_appointments_per_day": 50
+  },
+  "fees": {
+    "online_consultation": 500
+  },
+  "database": {
+    "path": "docbot.db"
+  },
+  "auth": {
+    "_comment": "Get from Google Cloud Console - OAuth 2.0 credentials",
+    "google_client_id": "CHANGE_ME_123456789.apps.googleusercontent.com",
+    "google_client_secret": "CHANGE_ME_secret_value",
+    "session_secret_key": "CHANGE_ME_generate_with_openssl_rand_hex_32"
+  },
+  "whatsapp": {
+    "_comment": "Get from Meta Business Suite - WhatsApp Cloud API",
+    "phone_number_id": "CHANGE_ME_123456789012345",
+    "access_token": "CHANGE_ME_your_whatsapp_access_token",
+    "verify_token": "CHANGE_ME_your_custom_verify_token",
+    "api_version": "v21.0"
+  },
+  "razorpay": {
+    "_comment": "Get from Razorpay Dashboard - API Keys section. Use TEST keys for config.test.json",
+    "key_id": "CHANGE_ME_rzp_test_or_live_key_id",
+    "key_secret": "CHANGE_ME_your_key_secret",
+    "webhook_secret": "CHANGE_ME_your_webhook_secret"
+  },
+  "google_calendar": {
+    "_comment": "Download OAuth credentials JSON from Google Cloud Console",
+    "credentials_path": "google_calendar_credentials.json",
+    "calendar_id": "CHANGE_ME_your_calendar_id@gmail.com"
+  },
+  "app": {
+    "_comment_env": "This is automatically set from DOCBOT_ENV environment variable",
+    "env": "test",
+    "base_url": "https://docbot.yourdomain.com",
+    "timezone": "Asia/Kolkata",
+    "debug": true,
+    "log_level": "DEBUG"
+  }
+}
