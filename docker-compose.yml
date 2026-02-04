@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  docbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docbot
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persistent data directory for SQLite DB and backups
+      - ./data:/app/data
+      # Bind mount config file based on DOCBOT_ENV
+      - ./config.${DOCBOT_ENV:-test}.json:/app/config.${DOCBOT_ENV:-test}.json:ro
+    environment:
+      - DOCBOT_ENV=${DOCBOT_ENV:-test}
+    restart: unless-stopped
+    profiles:
+      - test
+      - prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# To run with test profile: docker-compose --profile test up
+# To run with prod profile: DOCBOT_ENV=prod docker-compose --profile prod up
