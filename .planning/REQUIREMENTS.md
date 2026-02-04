@@ -53,6 +53,8 @@
 - [ ] **CAL-04**: Online appointments auto-generate unique Google Meet link
 - [ ] **CAL-05**: Meet link attached to calendar event
 - [ ] **CAL-06**: Cancelled appointments remove calendar event
+- [ ] **CAL-07**: Database is source of truth; Google Calendar is synchronized projection
+- [ ] **CAL-08**: Nightly reconciliation job flags calendar drift and alerts on mismatches
 
 ### Automated Notifications
 - [ ] **NOTIF-01**: Patient receives reminder 24 hours before appointment
@@ -114,7 +116,8 @@
 
 ### Failure Handling - Payments
 - [ ] **FAIL-03**: If payment succeeds but calendar creation fails, system retries calendar sync
-- [ ] **FAIL-04**: If refund API fails, system retries until success or manual intervention
+- [ ] **FAIL-04**: If refund API fails, system retries with exponential backoff until success or manual intervention
+- [ ] **FAIL-07**: Failed refunds surface on doctor dashboard with status indicator and manual retry option
 
 ### Failure Handling - Google APIs
 - [ ] **FAIL-05**: Google token refresh handled automatically
@@ -150,6 +153,10 @@
 - [ ] **TEST-02**: Razorpay test mode support for payment flow testing
 - [ ] **TEST-03**: Comprehensive test scenario checklist completed
 - [ ] **TEST-04**: Soft launch with limited users (family) completed before full launch
+
+### Launch Safety Controls
+- [ ] **LAUNCH-01**: Emergency toggle to disable new bookings without stopping reminders/existing appointments
+- [ ] **LAUNCH-02**: Read-only mode for dashboard during incidents (view only, no mutations)
 
 ## v2 Requirements
 
@@ -201,13 +208,118 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TBD | TBD | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Pending |
+| CONF-02 | Phase 1 | Pending |
+| CONF-03 | Phase 1 | Pending |
+| CONF-04 | Phase 1 | Pending |
+| DEPLOY-01 | Phase 1 | Pending |
+| DEPLOY-02 | Phase 1 | Pending |
+| DEPLOY-03 | Phase 1 | Pending |
+| OPS-01 | Phase 1 | Pending |
+| OPS-02 | Phase 1 | Pending |
+| OPS-03 | Phase 1 | Pending |
+| OPS-04 | Phase 1 | Pending |
+| OPS-05 | Phase 1 | Pending |
+| BOT-01 | Phase 2 | Pending |
+| BOT-02 | Phase 2 | Pending |
+| BOT-03 | Phase 2 | Pending |
+| BOT-04 | Phase 2 | Pending |
+| BOT-05 | Phase 2 | Pending |
+| BOT-06 | Phase 2 | Pending |
+| BOT-07 | Phase 2 | Pending |
+| BOT-08 | Phase 2 | Pending |
+| BOT-09 | Phase 2 | Pending |
+| BOOK-01 | Phase 2 | Pending |
+| BOOK-02 | Phase 2 | Pending |
+| BOOK-03 | Phase 2 | Pending |
+| BOOK-04 | Phase 2 | Pending |
+| BOOK-05 | Phase 2 | Pending |
+| BOOK-06 | Phase 2 | Pending |
+| BOOK-07 | Phase 2 | Pending |
+| BOOK-08 | Phase 2 | Pending |
+| BOOK-09 | Phase 2 | Pending |
+| FAIL-01 | Phase 2 | Pending |
+| FAIL-02 | Phase 2 | Pending |
+| PAY-01 | Phase 3 | Pending |
+| PAY-02 | Phase 3 | Pending |
+| PAY-03 | Phase 3 | Pending |
+| PAY-04 | Phase 3 | Pending |
+| PAY-05 | Phase 3 | Pending |
+| PAY-06 | Phase 3 | Pending |
+| PAY-07 | Phase 3 | Pending |
+| OFFL-01 | Phase 3 | Pending |
+| OFFL-02 | Phase 3 | Pending |
+| OFFL-03 | Phase 3 | Pending |
+| CAL-01 | Phase 3 | Pending |
+| CAL-02 | Phase 3 | Pending |
+| CAL-03 | Phase 3 | Pending |
+| CAL-04 | Phase 3 | Pending |
+| CAL-05 | Phase 3 | Pending |
+| CAL-06 | Phase 3 | Pending |
+| CNCL-01 | Phase 3 | Pending |
+| CNCL-02 | Phase 3 | Pending |
+| CNCL-04 | Phase 3 | Pending |
+| CNCL-05 | Phase 3 | Pending |
+| CNCL-06 | Phase 3 | Pending |
+| CNCL-07 | Phase 3 | Pending |
+| TIME-01 | Phase 3 | Pending |
+| TIME-02 | Phase 3 | Pending |
+| TIME-03 | Phase 3 | Pending |
+| TIME-04 | Phase 3 | Pending |
+| TIME-05 | Phase 3 | Pending |
+| DATA-01 | Phase 3 | Pending |
+| DATA-02 | Phase 3 | Pending |
+| DATA-03 | Phase 3 | Pending |
+| DATA-04 | Phase 3 | Pending |
+| DATA-05 | Phase 3 | Pending |
+| FAIL-03 | Phase 3 | Pending |
+| FAIL-04 | Phase 3 | Pending |
+| FAIL-05 | Phase 3 | Pending |
+| FAIL-06 | Phase 3 | Pending |
+| SEC-01 | Phase 3 | Pending |
+| DASH-01 | Phase 4 | Pending |
+| DASH-02 | Phase 4 | Pending |
+| DASH-03 | Phase 4 | Pending |
+| DASH-04 | Phase 4 | Pending |
+| DASH-05 | Phase 4 | Pending |
+| DASH-06 | Phase 4 | Pending |
+| DASH-07 | Phase 4 | Pending |
+| DASH-08 | Phase 4 | Pending |
+| DASH-09 | Phase 4 | Pending |
+| DASH-10 | Phase 4 | Pending |
+| CNCL-03 | Phase 4 | Pending |
+| SEC-02 | Phase 4 | Pending |
+| SEC-03 | Phase 4 | Pending |
+| SEC-04 | Phase 4 | Pending |
+| NOTIF-01 | Phase 5 | Pending |
+| NOTIF-02 | Phase 5 | Pending |
+| NOTIF-03 | Phase 5 | Pending |
+| NOTIF-04 | Phase 5 | Pending |
+| PRSC-01 | Phase 5 | Pending |
+| PRSC-02 | Phase 5 | Pending |
+| PRSC-03 | Phase 5 | Pending |
+| PRSC-04 | Phase 5 | Pending |
+| PRSC-05 | Phase 5 | Pending |
+| PRSC-06 | Phase 5 | Pending |
+| PRSC-07 | Phase 5 | Pending |
+| PRSC-08 | Phase 5 | Pending |
+| PRSC-09 | Phase 5 | Pending |
+| PRSC-10 | Phase 5 | Pending |
+| PRSC-11 | Phase 5 | Pending |
+| SEC-05 | Phase 5 | Pending |
+| TEST-01 | Phase 5 | Pending |
+| TEST-02 | Phase 5 | Pending |
+| TEST-03 | Phase 5 | Pending |
+| TEST-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 94 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 94 ⚠️
+- v1 requirements: 99 total (94 original + 5 surgical additions)
+- Mapped to phases: 99 (100% coverage after adjustments)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after initial definition with critical production requirements*
+*Last updated: 2026-02-04 with surgical additions (CAL-07/08, FAIL-07, LAUNCH-01/02) and phase boundary fixes*
