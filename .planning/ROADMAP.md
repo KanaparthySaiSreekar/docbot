@@ -33,10 +33,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   6. Appointment state machine defined and enforced in DB schema (PENDING_PAYMENT → CONFIRMED → CANCELLED → REFUNDED)
   7. Timezone strategy implemented globally (all timestamps stored in UTC, displayed in IST)
   8. Idempotency framework supports duplicate webhook prevention with event ID tracking
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: TBD during phase planning
+- [ ] 01-01-PLAN.md -- Project scaffolding, config system, structured logging, health endpoints
+- [ ] 01-02-PLAN.md -- Database schema, state machine, timezone utilities, idempotency (TDD)
+- [ ] 01-03-PLAN.md -- Google OAuth authentication, sessions, landing page
+- [ ] 01-04-PLAN.md -- Docker deployment, admin override script, backup verification
 
 ### Phase 2: WhatsApp Bot & Booking Flow
 **Goal**: Patients can interact with bot, select appointments, and complete booking flow (without payment)
@@ -110,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/4 | Planned | - |
 | 2. WhatsApp Bot & Booking Flow | 0/TBD | Not started | - |
 | 3. Payments & Calendar Integration | 0/TBD | Not started | - |
 | 4. Dashboard & Management | 0/TBD | Not started | - |
