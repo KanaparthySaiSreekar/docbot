@@ -147,6 +147,16 @@ Fully automated appointment booking and management that eliminates manual coordi
 | Clinic address in config file | Address unlikely to change frequently, simplifies implementation. | — Pending |
 | Skip "reason for visit" | Removes friction from booking flow, doctor will assess during consultation. | — Pending |
 | Full PRD for v1 | All features critical for launch, no phased rollout. Doctor needs complete system operational. | — Pending |
+| UTC storage, IST display | Prevents timezone bugs with 24/7 booking across midnight boundaries. All DB timestamps in UTC, converted to IST for display. | — Pending |
+| Database-level slot locking | SQLite doesn't support row-level locks well. Using UNIQUE constraints + transactions prevents race conditions. | — Pending |
+| Webhook idempotency | Razorpay/WhatsApp webhooks may retry. Using event IDs + database constraints prevents double-processing. | — Pending |
+| Transactional operations | Booking/payment/cancellation must be atomic. SQLite transactions with BEGIN IMMEDIATE for write safety. | — Pending |
+| State machine enforcement | Appointment states (PENDING_PAYMENT → CONFIRMED → CANCELLED → REFUNDED) enforced in code and DB. | — Pending |
+| Webhook signature validation | All webhooks (Razorpay, Meta) must validate signatures to prevent spoofing attacks. | — Pending |
+| Structured JSON logging | Self-hosted deployment requires debuggable logs. JSON format enables log aggregation and alerting. | — Pending |
+| Retry with backoff for external APIs | WhatsApp, Google Calendar, Razorpay refunds can fail transiently. Exponential backoff prevents API rate limits. | — Pending |
+| Time-limited prescription URLs | Prescription PDFs contain PII. Generate signed URLs with expiry instead of direct file access. | — Pending |
+| Separate test/prod configs | Razorpay test keys, Google OAuth test users, WhatsApp test numbers must never mix with production. | — Pending |
 
 ---
-*Last updated: 2026-02-04 after initialization*
+*Last updated: 2026-02-04 after initialization with critical architectural requirements*
