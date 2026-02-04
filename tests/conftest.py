@@ -6,6 +6,7 @@ from typing import AsyncGenerator
 
 import aiosqlite
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
 
 
@@ -17,7 +18,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def test_db() -> AsyncGenerator[aiosqlite.Connection, None]:
     """
     Create in-memory SQLite database for testing.
