@@ -117,7 +117,8 @@ Fully automated appointment booking and management that eliminates manual coordi
 
 ## Constraints
 
-- **Tech Stack**: Python/FastAPI with UV package manager — Required for developer preference
+- **Tech Stack (Backend)**: Python/FastAPI with UV package manager — Required for developer preference
+- **Tech Stack (Frontend)**: React — Doctor dashboard web interface
 - **Database**: SQLite — Suitable for single-doctor, single-server deployment with simplified backups
 - **Hosting**: Self-hosted Ubuntu server via Cloudflare tunnel — Using existing homelab infrastructure
 - **WhatsApp API**: Meta WhatsApp Cloud API — Official API for business messaging
@@ -141,6 +142,7 @@ Fully automated appointment booking and management that eliminates manual coordi
 | WhatsApp-only patient communication | No email/SMS reduces complexity. WhatsApp has near-universal adoption in India. | — Pending |
 | Self-hosted vs cloud | Existing homelab server available, reduces ongoing costs, full data control. | — Pending |
 | Python/FastAPI | Developer preference, strong library ecosystem for APIs, good async support for webhooks. | — Pending |
+| React for dashboard frontend | Modern component-based UI, rich ecosystem for calendar/form components, good developer experience. | — Pending |
 | 10-15 min payment soft-lock | Extended from initial 5-min to account for payment gateway delays and user distraction. | — Pending |
 | Configurable doctor hours in dashboard | Doctor needs flexibility to adjust availability without code changes. | — Pending |
 | Prescription as separate section | Not every consultation needs prescription. Separate workflow allows doctor to handle post-consult. | — Pending |
