@@ -16,6 +16,7 @@ async def lifespan(app: FastAPI):
     # Import here to allow proper initialization order
     from docbot.config import get_settings
     from docbot.logging_config import setup_logging
+    from docbot.database import init_db
 
     # Load configuration
     settings = get_settings()
@@ -26,6 +27,10 @@ async def lifespan(app: FastAPI):
     import logging
     logger = logging.getLogger(__name__)
     logger.info("DocBot API starting up", extra={"env": settings.app.env})
+
+    # Initialize database
+    await init_db()
+    logger.info("Database initialized")
 
     yield
 
@@ -86,6 +91,7 @@ async def health_check() -> dict[str, Any]:
 async def readiness_check() -> dict[str, Any]:
     """Readiness check endpoint - returns readiness when dependencies are available."""
     from docbot.config import get_settings
+    from docbot.database import get_db
 
     # Check config loaded successfully
     try:
@@ -94,11 +100,21 @@ async def readiness_check() -> dict[str, Any]:
     except Exception:
         config_ready = False
 
-    # Will add database check in Plan 02
+    # Check database connectivity
+    database_ready = False
+    try:
+        async for db in get_db():
+            result = await db.execute("SELECT 1")
+            await result.fetchone()
+            database_ready = True
+            break
+    except Exception:
+        pass
 
     return {
         "status": "ready",
         "checks": {
-            "config": config_ready
+            "config": config_ready,
+            "database": database_ready
         }
     }
