@@ -9,7 +9,7 @@ All write operations require --confirm flag for safety.
 import argparse
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -55,7 +55,7 @@ def format_table(headers: list[str], rows: list[list[Any]]) -> str:
 
 def log_action(action: str, details: str = ""):
     """Log administrative action with timestamp."""
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    timestamp = datetime.now(timezone.utc).isoformat()
     print(f"[{timestamp}] ADMIN ACTION: {action}")
     if details:
         print(f"  Details: {details}")
@@ -156,7 +156,7 @@ def update_status(conn: sqlite3.Connection, appointment_id: str, status: str, co
         SET status = ?, updated_at = ?
         WHERE id = ?
         """,
-        (new_status, datetime.utcnow().isoformat(), appointment_id)
+        (new_status, datetime.now(timezone.utc).isoformat(), appointment_id)
     )
     conn.commit()
 
