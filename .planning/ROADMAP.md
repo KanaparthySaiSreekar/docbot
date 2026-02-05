@@ -52,10 +52,13 @@ Plans:
   3. Patient selects consultation type, date, and available time slots
   4. Patient enters details (name, age, gender) and selected slot soft-locks for 10-15 minutes
   5. System prevents overbooking and respects doctor's configured working hours
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: TBD during phase planning
+- [ ] 02-01-PLAN.md -- WhatsApp Cloud API client, webhook endpoint, message retry
+- [ ] 02-02-PLAN.md -- Patient storage, conversation state, language/i18n system
+- [ ] 02-03-PLAN.md -- Slot availability engine and booking service (TDD)
+- [ ] 02-04-PLAN.md -- Bot conversation handler wiring all subsystems together
 
 ### Phase 3: Payments & Calendar Integration
 **Goal**: Complete booking system with Razorpay payments, refunds, and Google Calendar synchronization with reconciliation
@@ -115,7 +118,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete | 2026-02-05 |
-| 2. WhatsApp Bot & Booking Flow | 0/TBD | Not started | - |
+| 2. WhatsApp Bot & Booking Flow | 0/4 | Not started | - |
 | 3. Payments & Calendar Integration | 0/TBD | Not started | - |
 | 4. Dashboard & Management | 0/TBD | Not started | - |
 | 5. Automation & Launch | 0/TBD | Not started | - |
