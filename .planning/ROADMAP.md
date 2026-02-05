@@ -12,7 +12,7 @@ DocBot transforms a single-doctor practice into a fully automated WhatsApp-based
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Infrastructure, authentication, and deployment setup
+- [x] **Phase 1: Foundation** - Infrastructure, authentication, and deployment setup
 - [ ] **Phase 2: WhatsApp Bot & Booking Flow** - Patient-facing bot with booking capability
 - [ ] **Phase 3: Payments & Calendar Integration** - Complete online/offline booking with Google Calendar
 - [ ] **Phase 4: Dashboard & Management** - Doctor web interface and appointment operations
@@ -36,11 +36,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Project scaffolding, config system, structured logging, health endpoints
-- [ ] 01-02-PLAN.md -- Database schema, state machine, timezone utilities, idempotency (TDD)
-- [ ] 01-03-PLAN.md -- Google OAuth authentication, sessions, landing page
-- [ ] 01-04-PLAN.md -- Docker deployment, admin override script, backup verification
-- [ ] 01-05-PLAN.md -- Gap closure: Add init_db() to lifespan, fix deprecated datetime
+- [x] 01-01-PLAN.md -- Project scaffolding, config system, structured logging, health endpoints
+- [x] 01-02-PLAN.md -- Database schema, state machine, timezone utilities, idempotency (TDD)
+- [x] 01-03-PLAN.md -- Google OAuth authentication, sessions, landing page
+- [x] 01-04-PLAN.md -- Docker deployment, admin override script, backup verification
+- [x] 01-05-PLAN.md -- Gap closure: Add init_db() to lifespan, fix deprecated datetime
 
 ### Phase 2: WhatsApp Bot & Booking Flow
 **Goal**: Patients can interact with bot, select appointments, and complete booking flow (without payment)
@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/4 | Planned | - |
+| 1. Foundation | 5/5 | Complete | 2026-02-05 |
 | 2. WhatsApp Bot & Booking Flow | 0/TBD | Not started | - |
 | 3. Payments & Calendar Integration | 0/TBD | Not started | - |
 | 4. Dashboard & Management | 0/TBD | Not started | - |
