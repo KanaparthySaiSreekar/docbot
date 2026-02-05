@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 4 of 4 in current phase
+Plan: 5 of 5 in current phase
 Status: Phase complete
-Last activity: 2026-02-05 — Completed 01-04-PLAN.md (Deployment & Operations)
+Last activity: 2026-02-05 — Completed 01-05-PLAN.md (Gap Closure - Database Initialization)
 
 Progress: [████░░░░░░] 100% of Phase 1 (Foundation)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 12 min
-- Total execution time: 0.8 hours
+- Total plans completed: 5
+- Average duration: 11 min
+- Total execution time: 0.9 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 4/4 | 48 min | 12 min |
+| 01-foundation | 5/5 | 55 min | 11 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (12min), 01-02 (17min), 01-03 (13min), 01-04 (6min)
-- Trend: Accelerating velocity (6 min for ops/deployment plan)
+- Last 5 plans: 01-01 (12min), 01-02 (17min), 01-03 (13min), 01-04 (6min), 01-05 (7min)
+- Trend: Maintaining high velocity (7 min for gap closure plan)
 
 *Updated after each plan completion*
 
@@ -60,6 +60,9 @@ Recent decisions affecting current work:
 - **01-04**: Admin CLI requires --confirm flag for all write operations as safety mechanism
 - **01-04**: Backup verification validates integrity (not just creation) with PRAGMA checks and row counts
 - **01-04**: Alert stub uses structured JSON logging with categories for future notification integration
+- **01-05**: Database initialization runs in lifespan startup with try/except for fail-fast behavior
+- **01-05**: init_db() is safe to run on every startup (CREATE TABLE IF NOT EXISTS)
+- **01-05**: Standardized on datetime.now(timezone.utc) throughout codebase to avoid deprecation warnings
 
 ### Pending Todos
 
@@ -68,12 +71,12 @@ None yet.
 ### Blockers/Concerns
 
 - **User setup required for Docker deployment**: Before running docker-compose, user must create config.test.json and config.prod.json from config.example.json with valid Google OAuth credentials
-- **Phase 1 foundation complete**: Ready to begin Phase 2 (Booking System) with database, auth, and deployment infrastructure operational
+- **Phase 1 foundation fully complete**: All 5 plans complete. Ready to begin Phase 2 (Booking System) with database auto-initialization, auth, and deployment infrastructure operational
 
 ## Session Continuity
 
-Last session: 2026-02-04 19:30 UTC
-Stopped at: Completed 01-04-PLAN.md - Docker deployment, admin tools, backup verification
+Last session: 2026-02-05 07:23 UTC
+Stopped at: Completed 01-05-PLAN.md - Gap closure for database initialization and datetime standardization
 Resume file: None
 
-**Phase 1 (Foundation) Complete** - Ready for Phase 2 (Booking System)
+**Phase 1 (Foundation) Fully Complete** - All 5 plans executed. Ready for Phase 2 (Booking System)
