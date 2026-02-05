@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
     # Import here to allow proper initialization order
     from docbot.config import get_settings
     from docbot.logging_config import setup_logging
+    from docbot.database import init_db
 
     # Load configuration
     settings = get_settings()
@@ -29,6 +30,14 @@ async def lifespan(app: FastAPI):
     import logging
     logger = logging.getLogger(__name__)
     logger.info("DocBot API starting up", extra={"env": settings.app.env})
+
+    # Initialize database schema (safe to run multiple times)
+    try:
+        await init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Database initialization failed: {e}")
+        raise
 
     yield
 
