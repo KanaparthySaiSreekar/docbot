@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -176,6 +176,48 @@ async def readiness_check() -> dict[str, Any]:
             "database": database_ready
         }
     }
+
+
+@app.get("/prescriptions/download/{token}")
+async def download_prescription(token: str, db = Depends(lambda: get_db())):
+    """
+    Public endpoint to download prescription PDF via secure token.
+
+    Token must be valid and not expired (72-hour TTL).
+    No authentication required - security via token.
+    No PII logged for this endpoint.
+    """
+    import logging
+    from docbot.prescription_service import get_prescription_by_token
+    from docbot.database import get_db
+
+    logger = logging.getLogger("docbot.prescriptions")
+
+    # Get database connection
+    async for db_conn in get_db():
+        prescription = await get_prescription_by_token(db_conn, token)
+
+        if not prescription:
+            # Log without revealing token or patient info
+            logger.warning("Invalid or expired prescription download attempt")
+            raise HTTPException(status_code=404, detail="Prescription not found or link expired")
+
+        pdf_path = Path(prescription["pdf_path"])
+        if not pdf_path.exists():
+            logger.error(f"Prescription PDF file missing: {prescription['id']}")
+            raise HTTPException(status_code=404, detail="Prescription file not found")
+
+        # Log download without PII
+        logger.info(
+            "Prescription downloaded",
+            extra={"prescription_id": prescription["id"]}
+        )
+
+        return FileResponse(
+            pdf_path,
+            media_type="application/pdf",
+            filename=f"prescription_{prescription['id'][:8]}.pdf"
+        )
 
 
 @app.get("/")
