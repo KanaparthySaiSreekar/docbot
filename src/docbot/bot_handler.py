@@ -15,7 +15,7 @@ from docbot import (
 from docbot.cancellation_service import can_cancel_appointment, cancel_appointment
 from docbot.alerts import log_alert
 from docbot.calendar_service import create_appointment_event
-from docbot.config import get_settings
+from docbot.config import get_settings, is_booking_disabled
 from docbot.payment_service import create_payment_for_appointment
 from docbot.conversation import (
     CONFIRM_BOOKING,
@@ -260,6 +260,13 @@ async def _handle_main_menu(db, phone: str, button_id: str | None, language: str
         return
 
     if button_id == "menu_book":
+        # Check if booking is disabled (emergency mode)
+        if is_booking_disabled():
+            await whatsapp_client.send_text(phone, i18n.get_message("booking_disabled", language))
+            # Stay in main menu
+            await _send_main_menu(phone, language)
+            return
+
         # Start booking flow
         await conversation.update_conversation(db, phone, SELECT_TYPE)
         await _send_consultation_type(phone, language)

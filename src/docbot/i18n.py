@@ -311,6 +311,11 @@ MESSAGES = {
         "te": "మీ అపాయింట్‌మెంట్ 1 గంటలో {time} కి ప్రారంభమవుతుంది. క్లినిక్: {clinic_address}",
         "hi": "आपका अपॉइंटमेंट 1 घंटे में {time} बजे शुरू होगा। क्लिनिक: {clinic_address}"
     },
+    "booking_disabled": {
+        "en": "We are currently not accepting new bookings. Please try again later or contact the clinic.",
+        "te": "మేము ప్రస్తుతం కొత్త బుకింగ్‌లు అంగీకరించడం లేదు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.",
+        "hi": "हम वर्तमान में नई बुकिंग स्वीकार नहीं कर रहे हैं। कृपया बाद में पुनः प्रयास करें।",
+    },
 }
 
 

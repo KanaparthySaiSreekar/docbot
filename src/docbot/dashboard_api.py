@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from pydantic import BaseModel, field_validator
 
 from docbot.auth import require_auth
-from docbot.config import get_settings
+from docbot.config import get_settings, is_readonly_mode, is_booking_disabled, set_emergency_mode
 from docbot.database import get_db
 from docbot.timezone_utils import ist_now, utc_now
 
@@ -120,6 +120,12 @@ class ScheduleUpdateRequest(BaseModel):
         return v
 
 
+class EmergencyStatusResponse(BaseModel):
+    """Emergency mode status response."""
+    booking_disabled: bool
+    readonly_dashboard: bool
+
+
 # Utility functions
 
 def mask_phone(phone: str) -> str:
@@ -127,6 +133,15 @@ def mask_phone(phone: str) -> str:
     if len(phone) <= 4:
         return phone
     return "****" + phone[-4:]
+
+
+def check_readonly() -> None:
+    """Check if dashboard is in read-only mode and raise exception if so."""
+    if is_readonly_mode():
+        raise HTTPException(
+            status_code=403,
+            detail="Dashboard is in read-only mode during incident response"
+        )
 
 
 # Endpoints
@@ -347,6 +362,8 @@ async def update_settings_endpoint(
 
     Persists to config.{env}.json file.
     """
+    check_readonly()
+
     settings = get_settings()
     env = os.getenv("DOCBOT_ENV", "test")
     config_path = Path(f"config.{env}.json")
@@ -383,6 +400,36 @@ async def update_settings_endpoint(
     return {"status": "updated"}
 
 
+@router.get("/emergency", response_model=EmergencyStatusResponse)
+async def get_emergency_status(user: dict = Depends(require_auth)) -> EmergencyStatusResponse:
+    """Get current emergency mode status."""
+    return EmergencyStatusResponse(
+        booking_disabled=is_booking_disabled(),
+        readonly_dashboard=is_readonly_mode(),
+    )
+
+
+@router.post("/emergency")
+async def set_emergency_status(
+    booking_disabled: Optional[bool] = None,
+    readonly_dashboard: Optional[bool] = None,
+    user: dict = Depends(require_auth)
+) -> dict:
+    """Set emergency mode flags. Requires authentication."""
+    set_emergency_mode(booking_disabled, readonly_dashboard)
+
+    logger.info(
+        "Emergency mode updated",
+        extra={
+            "user_email": user.get("email"),
+            "booking_disabled": booking_disabled,
+            "readonly_dashboard": readonly_dashboard
+        }
+    )
+
+    return {"status": "updated"}
+
+
 @router.post("/appointments/{appointment_id}/cancel", response_model=CancelResponse)
 async def cancel_appointment_endpoint(
     appointment_id: str,
@@ -396,6 +443,8 @@ async def cancel_appointment_endpoint(
     Triggers automatic refund for online appointments.
     Deletes calendar event.
     """
+    check_readonly()
+
     from docbot.cancellation_service import cancel_appointment
 
     try:
@@ -425,6 +474,8 @@ async def retry_refund_endpoint(
     """
     Manually retry a failed refund.
     """
+    check_readonly()
+
     # Get refund record
     cursor = await db.execute(
         "SELECT appointment_id, status FROM refunds WHERE id = ?",
@@ -473,6 +524,8 @@ async def resend_confirmation_endpoint(
     """
     Resend confirmation message (and Meet link for online) to patient.
     """
+    check_readonly()
+
     cursor = await db.execute(
         """SELECT patient_phone, patient_name, consultation_type, appointment_date,
                   slot_time, google_meet_link, language, status
