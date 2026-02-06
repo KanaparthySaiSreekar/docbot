@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -58,6 +58,12 @@ templates = Jinja2Templates(directory=str(templates_dir))
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
+# Mount React frontend (must be after API routes)
+frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    # Serve static assets
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="frontend_assets")
+
 # Add SessionMiddleware for authentication
 from docbot.config import get_settings
 settings = get_settings()
@@ -78,6 +84,10 @@ app.include_router(auth.router)
 # Include webhook router
 from docbot import webhook
 app.include_router(webhook.router)
+
+# Include dashboard API router
+from docbot import dashboard_api
+app.include_router(dashboard_api.router)
 
 
 @app.middleware("http")
@@ -186,9 +196,8 @@ async def auth_error_page(request: Request):
 @app.get("/dashboard")
 async def dashboard(request: Request):
     """
-    Protected dashboard route - placeholder until React frontend in Phase 4.
+    Protected dashboard route - serves React app.
 
-    Returns JSON with user info. Will be replaced by React app later.
     Redirects to login page if not authenticated.
     """
     user = request.session.get('user')
@@ -197,7 +206,32 @@ async def dashboard(request: Request):
         # Redirect to landing page for GET requests
         return RedirectResponse(url="/", status_code=307)
 
+    # Serve React app if built
+    frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+    if frontend_dist.exists():
+        return FileResponse(frontend_dist / "index.html")
+
+    # Fallback for development
     return {
-        "message": "Dashboard coming in Phase 4",
+        "message": "Dashboard - run 'npm run build' in frontend/",
         "user": user.get("email") if isinstance(user, dict) else None
     }
+
+
+@app.get("/dashboard/{path:path}")
+async def serve_dashboard(request: Request, path: str = ""):
+    """
+    Serve React app for dashboard sub-routes (SPA routing).
+    Redirects to login if not authenticated.
+    """
+    user = request.session.get('user')
+
+    if not user:
+        return RedirectResponse(url="/", status_code=307)
+
+    frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+    if frontend_dist.exists():
+        index_path = frontend_dist / "index.html"
+        return FileResponse(index_path)
+
+    return RedirectResponse(url="/dashboard", status_code=307)
