@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 5 of 5 (Automation & Launch)
-Plan: 5 of 6 in current phase
+Plan: 3 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-07 — Completed 05-05-PLAN.md (Emergency Mode Controls)
+Last activity: 2026-02-07 — Completed 05-03-PLAN.md (Prescription Dashboard UI)
 
 Progress: [█████████████████████░] 95% (21/22 plans complete)
 
@@ -31,11 +31,11 @@ Progress: [█████████████████████░] 9
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
 | 04-dashboard-and-management | 6/6 | 51 min | 8.5 min |
-| 05-automation-and-launch | 1/6 | 12 min | 12 min |
+| 05-automation-and-launch | 3/6 | 38 min | 12.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-04 (18min), 04-06 (3min), 04-05 (8min), 05-02 (14min), 05-05 (12min)
-- Trend: Phase 5 in progress - emergency controls and prescription systems complete
+- Last 5 plans: 04-06 (3min), 04-05 (8min), 05-02 (14min), 05-05 (12min), 05-03 (12min)
+- Trend: Phase 5 in progress - prescription system complete with full dashboard UI
 
 *Updated after each plan completion*
 
@@ -142,6 +142,16 @@ Recent decisions affecting current work:
 - **05-02**: Prescription immutability enforced via UNIQUE constraint on appointment_id (one prescription per appointment)
 - **05-02**: PDFs stored in prescriptions/ directory separate from database for efficient file serving
 - **05-02**: Template includes "Generated electronically" notice for medical documentation standards compliance
+- **05-02**: xhtml2pdf chosen over WeasyPrint for cross-platform PDF generation (no system library dependencies)
+- **05-02**: Prescription secure tokens expire after 72 hours with regeneration capability for extending access
+- **05-02**: Prescription immutability enforced via UNIQUE constraint on appointment_id (one prescription per appointment)
+- **05-02**: PDFs stored in prescriptions/ directory separate from database for efficient file serving
+- **05-02**: Template includes "Generated electronically" notice for medical documentation standards compliance
+- **05-03**: Completed appointments filtered to exclude those with existing prescriptions
+- **05-03**: Medicine form validates at least one medicine with name required
+- **05-03**: Download URLs generated with base_url from config for portability
+- **05-03**: Prescription creation triggers automatic WhatsApp delivery
+- **05-03**: Public download endpoint uses token authentication (no login required)
 - **05-05**: Emergency flags stored in config with runtime toggle for incident response without deployment
 - **05-05**: Booking disabled returns to main menu with maintenance message, existing features still work
 - **05-05**: Read-only mode returns 403 on all mutations with clear error messaging
@@ -167,10 +177,12 @@ None yet.
 
 **Emergency Controls Available**: Plan 05-05 created emergency mode system for incident response. Doctor can disable new bookings via WhatsApp while keeping existing appointments/reminders working. Doctor can enable read-only dashboard mode to prevent accidental changes during investigations. Emergency status visible via red banner in dashboard. Toggle via POST /api/emergency endpoint or config file.
 
+**Prescription System Complete**: Plan 05-02 built prescription PDF generation with xhtml2pdf. Plan 05-03 added full prescription dashboard UI with patient selection, multi-medicine form, and automatic WhatsApp delivery. Doctor selects completed appointment, enters medicines/dosage/instructions, generates PDF, and system sends secure download link to patient via WhatsApp. Prescription history shows delivery status and download access. Public token-based endpoint allows patients to download PDFs without login (72-hour expiry).
+
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 05-05-PLAN.md (Emergency Mode Controls)
+Stopped at: Completed 05-03-PLAN.md (Prescription Dashboard UI)
 Resume file: None
 
-**Phase 5 (Automation & Launch) In Progress** - Plan 05-05 (Emergency Mode Controls) completed successfully. Emergency mode configuration system provides safety mechanisms for incident response: booking disabled toggle for WhatsApp, read-only dashboard mode, emergency status API endpoints, and visual emergency banner. Doctor can toggle emergency flags via authenticated API or config file. Existing appointments and reminders unaffected by emergency mode. One plan remaining: 05-06 (Production Deployment Guide).
+**Phase 5 (Automation & Launch) In Progress** - Plan 05-03 (Prescription Dashboard UI) completed successfully. Full prescription workflow implemented: doctor selects patient from completed appointments, enters medicines in dynamic form, generates PDF with xhtml2pdf, and system automatically delivers secure download link via WhatsApp. Prescription history table shows delivery status and download access. Public token-based download endpoint allows patients to access PDFs without login. Three plans remaining in Phase 5.
