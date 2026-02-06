@@ -75,6 +75,13 @@ class GoogleCalendarConfig(BaseModel):
     calendar_id: str = ""
 
 
+class EmergencyConfig(BaseModel):
+    """Emergency mode configuration."""
+    booking_disabled: bool = False  # Stops new bookings via WhatsApp
+    readonly_dashboard: bool = False  # Dashboard view-only (no mutations)
+    maintenance_message: str = "We are currently unable to accept new bookings. Please try again later or contact the clinic."
+
+
 class AppConfig(BaseModel):
     """Application-level configuration."""
     env: str = "test"  # test or prod
@@ -94,6 +101,7 @@ class Settings(BaseModel):
     whatsapp: WhatsAppConfig = Field(default_factory=WhatsAppConfig)
     razorpay: RazorpayConfig = Field(default_factory=RazorpayConfig)
     google_calendar: GoogleCalendarConfig = Field(default_factory=GoogleCalendarConfig)
+    emergency: EmergencyConfig = Field(default_factory=EmergencyConfig)
     app: AppConfig = Field(default_factory=AppConfig)
 
 
@@ -156,3 +164,49 @@ def get_settings() -> Settings:
         )
         # Return defaults with correct env set
         return Settings(app=AppConfig(env=env))
+
+
+def is_booking_disabled() -> bool:
+    """Check if booking is disabled (emergency mode)."""
+    settings = get_settings()
+    return settings.emergency.booking_disabled
+
+
+def is_readonly_mode() -> bool:
+    """Check if dashboard is in read-only mode."""
+    settings = get_settings()
+    return settings.emergency.readonly_dashboard
+
+
+def set_emergency_mode(booking_disabled: bool | None = None, readonly_dashboard: bool | None = None) -> None:
+    """
+    Set emergency mode flags. Updates config file and clears cache.
+
+    Only updates specified flags (None = keep current value).
+    """
+    env = os.getenv("DOCBOT_ENV", "test")
+    config_path = Path(f"config.{env}.json")
+
+    # Read current config
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            config_data = json.load(f)
+    else:
+        config_data = {}
+
+    # Update emergency section
+    if "emergency" not in config_data:
+        config_data["emergency"] = {}
+
+    if booking_disabled is not None:
+        config_data["emergency"]["booking_disabled"] = booking_disabled
+
+    if readonly_dashboard is not None:
+        config_data["emergency"]["readonly_dashboard"] = readonly_dashboard
+
+    # Write back
+    with open(config_path, "w") as f:
+        json.dump(config_data, f, indent=2)
+
+    # Clear cache to apply immediately
+    get_settings.cache_clear()
