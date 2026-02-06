@@ -1,12 +1,13 @@
 interface Props {
-  currentPage: 'calendar' | 'history' | 'settings';
-  onNavigate: (page: 'calendar' | 'history' | 'settings') => void;
+  currentPage: 'calendar' | 'history' | 'settings' | 'prescriptions';
+  onNavigate: (page: 'calendar' | 'history' | 'settings' | 'prescriptions') => void;
 }
 
 export function Navigation({ currentPage, onNavigate }: Props) {
   const tabs = [
     { id: 'calendar' as const, label: 'Calendar', icon: '📅' },
     { id: 'history' as const, label: 'History', icon: '📋' },
+    { id: 'prescriptions' as const, label: 'Prescriptions', icon: '💊' },
     { id: 'settings' as const, label: 'Settings', icon: '⚙️' },
   ];
 

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Dashboard } from './pages/Dashboard';
 import { History } from './pages/History';
 import { Settings } from './pages/Settings';
+import { Prescriptions } from './pages/Prescriptions';
 import { Navigation } from './components/Navigation';
 import { EmergencyBanner } from './components/EmergencyBanner';
 
@@ -15,7 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 
-type Page = 'calendar' | 'history' | 'settings';
+type Page = 'calendar' | 'history' | 'settings' | 'prescriptions';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('calendar');
@@ -39,6 +40,7 @@ function App() {
           {currentPage === 'calendar' && <Dashboard />}
           {currentPage === 'history' && <History />}
           {currentPage === 'settings' && <Settings />}
+          {currentPage === 'prescriptions' && <Prescriptions />}
         </main>
       </div>
     </QueryClientProvider>
