@@ -6,10 +6,9 @@ import { AppointmentCard } from '../AppointmentCard';
 interface Props {
   date: Date;
   appointments: Appointment[];
-  onCancelAppointment?: (id: string) => void;
 }
 
-export function WeekView({ date, appointments, onCancelAppointment }: Props) {
+export function WeekView({ date, appointments }: Props) {
   const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Monday
 
   const days = useMemo(() => {
@@ -60,7 +59,6 @@ export function WeekView({ date, appointments, onCancelAppointment }: Props) {
                     <AppointmentCard
                       key={appt.id}
                       appointment={appt}
-                      onCancel={onCancelAppointment}
                       compact
                     />
                   ))

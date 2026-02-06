@@ -1,8 +1,8 @@
+import { useCancelAppointment, useResendConfirmation } from '../api/actions';
 import type { Appointment } from '../types';
 
 interface Props {
   appointment: Appointment;
-  onCancel?: (id: string) => void;
   compact?: boolean;
 }
 
@@ -18,10 +18,25 @@ const typeIcons = {
   offline: '🏥',
 };
 
-export function AppointmentCard({ appointment, onCancel, compact = false }: Props) {
+export function AppointmentCard({ appointment, compact = false }: Props) {
+  const cancelMutation = useCancelAppointment();
+  const resendMutation = useResendConfirmation();
+
   const handleJoinMeet = () => {
     if (appointment.google_meet_link) {
       window.open(appointment.google_meet_link, '_blank');
+    }
+  };
+
+  const handleCancel = () => {
+    if (confirm(`Cancel appointment for ${appointment.patient_name}?`)) {
+      cancelMutation.mutate(appointment.id);
+    }
+  };
+
+  const handleResend = () => {
+    if (confirm('Resend confirmation message to patient?')) {
+      resendMutation.mutate(appointment.id);
     }
   };
 
@@ -65,13 +80,23 @@ export function AppointmentCard({ appointment, onCancel, compact = false }: Prop
           </button>
         )}
 
-        {(appointment.status === 'CONFIRMED' || appointment.status === 'PENDING_PAYMENT') && onCancel && (
-          <button
-            onClick={() => onCancel(appointment.id)}
-            className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200"
-          >
-            Cancel
-          </button>
+        {(appointment.status === 'CONFIRMED' || appointment.status === 'PENDING_PAYMENT') && (
+          <>
+            <button
+              onClick={handleResend}
+              disabled={resendMutation.isPending}
+              className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 disabled:opacity-50"
+            >
+              {resendMutation.isPending ? 'Sending...' : 'Resend'}
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending}
+              className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200 disabled:opacity-50"
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel'}
+            </button>
+          </>
         )}
       </div>
     </div>

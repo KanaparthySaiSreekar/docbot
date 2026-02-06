@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 5 (Dashboard & Management)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-06 — Completed 04-02-PLAN.md (React Frontend Setup)
+Plan: 3 of 6 in current phase
+Status: In progress
+Last activity: 2026-02-06 — Completed 04-03-PLAN.md (Calendar Views & Appointment Display)
 
-Progress: [█████████████████░] 94% (16/17 plans complete)
+Progress: [█████████████████░] 85% (17/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 9 min
-- Total execution time: 2.3 hours
+- Total execution time: 2.5 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████████████████░] 94% (16/17 pl
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
-| 04-dashboard-and-management | 2/2 | 14 min | 7 min |
+| 04-dashboard-and-management | 3/6 | 22 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (8min), 03-04 (7min), 03-05 (11min), 04-01 (7min), 04-02 (7min)
-- Trend: Excellent velocity maintained, phase 4 complete with consistent 7 min per plan
+- Last 5 plans: 03-04 (7min), 03-05 (11min), 04-01 (7min), 04-02 (7min), 04-03 (8min)
+- Trend: Excellent velocity maintained, consistent 7-8 min per plan in phase 4
 
 *Updated after each plan completion*
 
@@ -119,6 +119,11 @@ Recent decisions affecting current work:
 - **04-02**: API client uses same-origin requests with credentials:include for session cookies
 - **04-02**: Vite proxy configured for /api and /auth routes during development
 - **04-02**: FastAPI serves React build from /dashboard with SPA routing support
+- **04-03**: Type-only imports required for TypeScript verbatimModuleSyntax mode with Vite
+- **04-03**: Day view shows 9:00-17:00 with 15-minute intervals matching clinic schedule
+- **04-03**: Week view starts on Monday following standard business calendar convention
+- **04-03**: Compact mode for appointment cards optimizes space in calendar views
+- **04-03**: Cancel button placeholder logs to console, mutations implemented in 04-04
 
 ### Pending Todos
 
@@ -134,14 +139,14 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Phase 5**: Phase 4 complete with dashboard API and React frontend foundation. Plan 04-01 created REST API with 4 authenticated endpoints. Plan 04-02 set up React with Vite, TypeScript, Tailwind CSS, and API client. FastAPI serves React app from /dashboard. Development workflow supports hot reload with API proxy. Next phase can build dashboard features on this foundation.
+**Phase 4 Progress**: Dashboard foundation complete with calendar UI. Plan 04-01 created REST API with 4 authenticated endpoints. Plan 04-02 set up React with Vite, TypeScript, Tailwind CSS, and API client. Plan 04-03 built day/week calendar views with appointment cards, Meet links, and status indicators. FastAPI serves React app from /dashboard. Ready for interactive features (04-04+).
 
 **Cron Job Setup Recommended**: Plan 03-05 created scripts/run_reconciliation.py for nightly data integrity checks. Schedule with crontab: `0 2 * * * cd /app && uv run python scripts/run_reconciliation.py` to run at 2 AM daily. Handles calendar drift detection, failed operation retries, and orphaned event cleanup.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-02-PLAN.md (React Frontend Setup)
+Stopped at: Completed 04-03-PLAN.md (Calendar Views & Appointment Display)
 Resume file: None
 
-**Phase 4 (Dashboard & Management) Complete ✓** - All 2 plans executed: Dashboard REST API (04-01) and React frontend with Vite (04-02). FastAPI serves React app from /dashboard with session authentication. API client handles credentials with automatic 401 redirects. Development workflow ready with hot reload and proxy.
+**Phase 4 (Dashboard & Management) In Progress** - 3 of 6 plans executed: Dashboard REST API (04-01), React frontend setup (04-02), and calendar views (04-03). Calendar UI displays appointments in day/week views with patient details, Meet links, and status indicators. Next: Interactive features (04-04), appointment history (04-05), and failed refunds (04-06).

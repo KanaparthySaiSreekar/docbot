@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { addDays, addWeeks, subDays, subWeeks, startOfWeek, endOfWeek } from 'date-fns';
 import { DayView } from '../components/Calendar/DayView';
 import { WeekView } from '../components/Calendar/WeekView';
+import { RefundsList } from '../components/RefundsList';
 import { useAppointments } from '../api/appointments';
 import type { CalendarView } from '../types';
 
@@ -31,11 +32,6 @@ export function Dashboard() {
 
   const handleToday = () => {
     setSelectedDate(new Date());
-  };
-
-  const handleCancelAppointment = (id: string) => {
-    // Will be implemented in next plan
-    console.log('Cancel appointment:', id);
   };
 
   return (
@@ -83,16 +79,19 @@ export function Dashboard() {
           <DayView
             date={selectedDate}
             appointments={appointments}
-            onCancelAppointment={handleCancelAppointment}
           />
         ) : (
           <WeekView
             date={selectedDate}
             appointments={appointments}
-            onCancelAppointment={handleCancelAppointment}
           />
         )
       )}
+
+      {/* Failed Refunds Panel */}
+      <div className="mt-6">
+        <RefundsList />
+      </div>
     </div>
   );
 }

@@ -6,10 +6,9 @@ import { AppointmentCard } from '../AppointmentCard';
 interface Props {
   date: Date;
   appointments: Appointment[];
-  onCancelAppointment?: (id: string) => void;
 }
 
-export function DayView({ date, appointments, onCancelAppointment }: Props) {
+export function DayView({ date, appointments }: Props) {
   const dateStr = format(date, 'yyyy-MM-dd');
 
   // Generate time slots from 9:00 to 17:00 in 15-min intervals
@@ -53,7 +52,6 @@ export function DayView({ date, appointments, onCancelAppointment }: Props) {
                 ) : appt ? (
                   <AppointmentCard
                     appointment={appt}
-                    onCancel={onCancelAppointment}
                     compact
                   />
                 ) : null}
