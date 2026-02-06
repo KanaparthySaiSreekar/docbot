@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 5 (Payments & Calendar Integration)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-06 — Completed 03-01-PLAN.md (Razorpay payment integration)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 03-02-PLAN.md (Google Calendar integration)
 
-Progress: [██████████░░] 50% of Phase 3 (Payments & Calendar Integration)
+Progress: [████████████] 100% of Phase 3 (Payments & Calendar Integration) ✓
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 8 min
-- Total execution time: 1.5 hours
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [██████████░░] 50% of Phase 3 (Payments & Cale
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
-| 03-payments-calendar-integration | 1/2 | 10 min | 10 min |
+| 03-payments-calendar-integration | 2/2 | 23 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (5min), 02-02 (10min), 02-03 (5min), 02-04 (7min), 03-01 (10min)
-- Trend: Steady velocity with TDD plans averaging 10 min (includes RED-GREEN cycles)
+- Last 5 plans: 02-02 (10min), 02-03 (5min), 02-04 (7min), 03-01 (10min), 03-02 (13min)
+- Trend: Steady velocity, TDD plans with external API integration averaging 12 min
 
 *Updated after each plan completion*
 
@@ -90,6 +90,10 @@ Recent decisions affecting current work:
 - **03-01**: Phone numbers cleaned (+91 prefix removed) before sending to Razorpay for compatibility
 - **03-01**: Webhook idempotency uses razorpay:{payment_id}:{event_type} as globally unique event_id
 - **03-01**: Payment confirmation transitions appointment PENDING_PAYMENT → CONFIRMED atomically
+- **03-02**: OAuth2 credentials stored in token.json in project root with automatic refresh
+- **03-02**: Meet link generation only for online consultations via conferenceData
+- **03-02**: Event deletion returns success if event already deleted (404 = success)
+- **03-02**: Calendar service is idempotent - skips creation if event already exists
 
 ### Pending Todos
 
@@ -101,14 +105,16 @@ None yet.
 
 **User Setup Required (Razorpay)**: Plan 03-01 introduced Razorpay payment integration requiring account creation, KYC verification, API key generation, and webhook configuration (see 03-USER-SETUP.md). Must be completed before online consultation payments will function.
 
+**User Setup Required (Google Calendar)**: Plan 03-02 introduced Google Calendar integration requiring OAuth 2.0 credentials, calendar ID configuration, and initial browser authentication flow (see 03-USER-SETUP.md). Must be completed before calendar events and Meet links will function.
+
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Plan 03-02**: Razorpay payment integration complete. Payment links created for online consultations (₹500 fee), webhook processing transitions appointments to CONFIRMED. Google Calendar sync next to create calendar events for confirmed appointments.
+**Ready for Phase 4**: Phase 3 complete with payment and calendar integration. Patients can book appointments (Phase 2), pay via Razorpay (Phase 3), and appointments sync to Google Calendar with Meet links (Phase 3). Admin dashboard next for doctor-side management.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-01-PLAN.md (Razorpay payment integration with TDD)
+Stopped at: Completed 03-02-PLAN.md (Google Calendar integration)
 Resume file: None
 
-**Phase 3 (Payments & Calendar Integration) In Progress** - Plan 03-01 complete (Razorpay), Plan 03-02 next (Google Calendar)
+**Phase 3 (Payments & Calendar Integration) Complete ✓** - Both plans executed: Razorpay payment links (03-01) and Google Calendar events with Meet links (03-02)
