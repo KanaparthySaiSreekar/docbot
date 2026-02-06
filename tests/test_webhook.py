@@ -403,3 +403,77 @@ async def test_razorpay_webhook_invalid_signature(test_client):
 
         # Should still return 200 to prevent retries
         assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_razorpay_webhook_refund_processed(test_client, test_db):
+    """Test Razorpay refund.processed webhook."""
+    # Setup cancelled appointment with payment
+    await test_db.execute(
+        """INSERT INTO appointments
+           (id, patient_phone, patient_name, patient_age, patient_gender,
+            consultation_type, appointment_date, slot_time, status,
+            language, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("appt-refund-test", "+919876543210", "Refund Test", 30, "Male",
+         "online", "2026-02-10", "10:00", "CANCELLED",
+         "en", "2026-02-06T10:00:00Z", "2026-02-06T10:00:00Z")
+    )
+    await test_db.execute(
+        """INSERT INTO payments
+           (id, appointment_id, razorpay_payment_id, razorpay_payment_link_id,
+            amount_paise, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        ("pay-refund", "appt-refund-test", "pay_refund123", "plink_123",
+         50000, "CAPTURED", "2026-02-06T10:00:00Z")
+    )
+    await test_db.execute(
+        """INSERT INTO refunds
+           (id, appointment_id, razorpay_payment_id, amount_paise,
+            status, retry_count, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        ("rfnd-test", "appt-refund-test", "pay_refund123", 50000,
+         "PENDING", 0, "2026-02-06T10:00:00Z")
+    )
+    await test_db.commit()
+
+    # Create mock for get_db that yields test_db
+    async def mock_get_db():
+        yield test_db
+
+    with patch("docbot.webhook.get_db", mock_get_db), \
+         patch("docbot.refund_service.verify_webhook_signature", return_value=True), \
+         patch("docbot.webhook.send_text", new_callable=AsyncMock) as mock_send:
+
+        webhook_payload = {
+            "event": "refund.processed",
+            "payload": {
+                "refund": {
+                    "entity": {
+                        "id": "rfnd_api_456",
+                        "payment_id": "pay_refund123",
+                        "amount": 50000,
+                        "status": "processed"
+                    }
+                }
+            }
+        }
+
+        response = test_client.post(
+            "/webhook/razorpay",
+            json=webhook_payload,
+            headers={"X-Razorpay-Signature": "valid"}
+        )
+
+        assert response.status_code == 200
+
+        # Verify appointment status updated
+        cursor = await test_db.execute(
+            "SELECT status FROM appointments WHERE id = ?",
+            ("appt-refund-test",)
+        )
+        row = await cursor.fetchone()
+        assert row[0] == "REFUNDED"
+
+        # Verify WhatsApp message sent
+        mock_send.assert_called()

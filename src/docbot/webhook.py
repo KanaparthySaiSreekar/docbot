@@ -217,20 +217,18 @@ async def razorpay_webhook(request: Request) -> JSONResponse:
                         if cal_result and cal_result.get("meet_link"):
                             await send_text(
                                 phone,
-                                i18n.get_message("payment_received_meet_link", lang).format(
-                                    date=date_str,
-                                    time=slot_time,
-                                    meet_link=cal_result['meet_link']
-                                )
+                                i18n.get_message("payment_received_meet_link", lang,
+                                                 date=date_str,
+                                                 time=slot_time,
+                                                 meet_link=cal_result['meet_link'])
                             )
                         else:
                             # Meet link will be sent when calendar succeeds
                             await send_text(
                                 phone,
-                                i18n.get_message("payment_received_pending_link", lang).format(
-                                    date=date_str,
-                                    time=slot_time
-                                )
+                                i18n.get_message("payment_received_pending_link", lang,
+                                                 date=date_str,
+                                                 time=slot_time)
                             )
 
             elif event_type == "refund.processed":
