@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from './client';
-import { Appointment, FailedRefund, ScheduleSettings } from '../types';
+import type { Appointment, FailedRefund, ScheduleSettings } from '../types';
 import { format } from 'date-fns';
 
 export function useAppointments(dateFrom: Date, dateTo: Date) {

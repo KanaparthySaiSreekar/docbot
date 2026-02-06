@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
-import { Appointment } from '../../types';
+import type { Appointment } from '../../types';
 import { AppointmentCard } from '../AppointmentCard';
 
 interface Props {
