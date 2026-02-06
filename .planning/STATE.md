@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Fully automated appointment booking and management that eliminates manual coordination - patients can book, pay, cancel, and receive prescriptions entirely through WhatsApp while the doctor focuses solely on consultations through a clean web interface.
-**Current focus:** Phase 3 - Payments & Calendar Integration
+**Current focus:** Phase 4 - Dashboard & Management
 
 ## Current Position
 
-Phase: 3 of 5 (Payments & Calendar Integration)
-Plan: 5 of 5 in current phase
+Phase: 4 of 5 (Dashboard & Management)
+Plan: 2 of 2 in current phase
 Status: Phase complete
-Last activity: 2026-02-06 — Completed 03-05-PLAN.md (Reconciliation Job with nightly calendar/payment sync)
+Last activity: 2026-02-06 — Completed 04-02-PLAN.md (React Frontend Setup)
 
-Progress: [████████████] 100% of Phase 3 (Payments & Calendar Integration) ✓
+Progress: [█████████████████░] 94% (16/17 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: 9 min
-- Total execution time: 2.1 hours
+- Total execution time: 2.2 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [████████████] 100% of Phase 3 (Payments & Cal
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
+| 04-dashboard-and-management | 1/2 | 7 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (10min), 03-02 (13min), 03-03 (8min), 03-04 (7min), 03-05 (11min)
-- Trend: Consistent velocity, phase 3 averaging 10 min per plan
+- Last 5 plans: 03-02 (13min), 03-03 (8min), 03-04 (7min), 03-05 (11min), 04-01 (7min)
+- Trend: Excellent velocity maintained, phase 4 starting strong at 7 min
 
 *Updated after each plan completion*
 
@@ -109,6 +110,11 @@ Recent decisions affecting current work:
 - **03-05**: Calendar drift checks only next 7 days for performance optimization
 - **03-05**: Refund webhook integrated into existing Razorpay webhook endpoint with event type routing
 - **03-05**: i18n template variables passed as kwargs for consistency with existing API
+- **04-01**: Phone numbers masked to last 4 digits in all API responses for PII protection
+- **04-01**: Default date range for appointments is today + 7 days for practical dashboard view
+- **04-01**: Failed refunds endpoint returns both PENDING and FAILED statuses for comprehensive monitoring
+- **04-01**: Settings endpoint returns schedule configuration without requiring database access
+- **04-01**: All dashboard endpoints require authentication via require_auth dependency
 
 ### Pending Todos
 
@@ -124,14 +130,14 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Phase 4**: Phase 3 complete with full end-to-end booking, cancellation, and reconciliation flows. Online flow: patient books → payment link → webhook → calendar event → Meet link → refund on cancel. Offline flow: patient books → calendar event → clinic address → cancel cleanup. Reconciliation: nightly job retries failures, checks drift, identifies orphans. Admin dashboard next for doctor-side management.
+**Dashboard API Complete**: Plan 04-01 created REST API backend with 4 authenticated endpoints (appointments, history, failed refunds, settings). Phone masking ensures PII protection. All endpoints return structured JSON via Pydantic models. Ready for React frontend implementation in 04-02.
 
 **Cron Job Setup Recommended**: Plan 03-05 created scripts/run_reconciliation.py for nightly data integrity checks. Schedule with crontab: `0 2 * * * cd /app && uv run python scripts/run_reconciliation.py` to run at 2 AM daily. Handles calendar drift detection, failed operation retries, and orphaned event cleanup.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-05-PLAN.md (Reconciliation Job with nightly calendar/payment sync)
+Stopped at: Completed 04-01-PLAN.md (Dashboard API Endpoints)
 Resume file: None
 
-**Phase 3 (Payments & Calendar Integration) Complete ✓** - All 5 plans executed: Razorpay payment service (03-01), Google Calendar integration (03-02), end-to-end booking flows (03-03), cancellation with automatic refunds (03-04), and reconciliation job for data integrity (03-05)
+**Phase 4 (Dashboard & Management) In Progress** - Plan 04-01 complete: Dashboard REST API with authenticated endpoints for appointments, refunds, and settings. Next: 04-02 React frontend implementation.
