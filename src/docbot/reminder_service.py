@@ -11,12 +11,13 @@ from docbot.whatsapp_client import send_text
 logger = logging.getLogger(__name__)
 
 
-async def get_due_reminders(reminder_type: str) -> list[dict]:
+async def get_due_reminders(reminder_type: str, db=None) -> list[dict]:
     """
     Query appointments that need reminders sent.
 
     Args:
         reminder_type: "24h" for 24-hour reminders, "1h" for 1-hour reminders
+        db: Optional database connection (for testing)
 
     Returns:
         list[dict]: Appointments needing reminders with all necessary data
@@ -57,7 +58,8 @@ async def get_due_reminders(reminder_type: str) -> list[dict]:
         ORDER BY appointment_date, slot_time
     """
 
-    async for db in get_db():
+    # Use provided db or get from connection pool
+    if db is not None:
         cursor = await db.execute(
             query,
             (
@@ -85,6 +87,35 @@ async def get_due_reminders(reminder_type: str) -> list[dict]:
             extra={"reminder_type": reminder_type, "count": len(reminders)}
         )
         return reminders
+    else:
+        async for db in get_db():
+            cursor = await db.execute(
+                query,
+                (
+                    window_start.strftime("%Y-%m-%d %H:%M"),
+                    window_end.strftime("%Y-%m-%d %H:%M"),
+                ),
+            )
+            rows = await cursor.fetchall()
+
+            reminders = []
+            for row in rows:
+                reminders.append({
+                    "id": row[0],
+                    "patient_phone": row[1],
+                    "patient_name": row[2],
+                    "consultation_type": row[3],
+                    "appointment_date": row[4],
+                    "slot_time": row[5],
+                    "google_meet_link": row[6],
+                    "language": row[7],
+                })
+
+            logger.info(
+                f"Found {len(reminders)} appointments for {reminder_type} reminders",
+                extra={"reminder_type": reminder_type, "count": len(reminders)}
+            )
+            return reminders
 
 
 async def send_reminder(phone: str, reminder_type: str, appointment: dict) -> bool:
@@ -163,13 +194,14 @@ async def send_reminder(phone: str, reminder_type: str, appointment: dict) -> bo
         return False
 
 
-async def mark_reminder_sent(appointment_id: str, reminder_type: str) -> None:
+async def mark_reminder_sent(appointment_id: str, reminder_type: str, db=None) -> None:
     """
     Mark reminder as sent in database.
 
     Args:
         appointment_id: Appointment ID
         reminder_type: "24h" or "1h"
+        db: Optional database connection (for testing)
     """
     column = "reminder_sent_24h" if reminder_type == "24h" else "reminder_sent_1h"
 
@@ -180,7 +212,8 @@ async def mark_reminder_sent(appointment_id: str, reminder_type: str) -> None:
         WHERE id = ?
     """
 
-    async for db in get_db():
+    # Use provided db or get from connection pool
+    if db is not None:
         await db.execute(
             query,
             (datetime.now(timezone.utc).isoformat(), appointment_id)
@@ -194,9 +227,24 @@ async def mark_reminder_sent(appointment_id: str, reminder_type: str) -> None:
                 "reminder_type": reminder_type
             }
         )
+    else:
+        async for db in get_db():
+            await db.execute(
+                query,
+                (datetime.now(timezone.utc).isoformat(), appointment_id)
+            )
+            await db.commit()
+
+            logger.debug(
+                f"Marked reminder as sent",
+                extra={
+                    "appointment_id": appointment_id,
+                    "reminder_type": reminder_type
+                }
+            )
 
 
-async def run_reminder_job(reminder_type: str) -> dict:
+async def run_reminder_job(reminder_type: str, db=None) -> dict:
     """
     Main entry point for reminder cron job.
 
@@ -204,6 +252,7 @@ async def run_reminder_job(reminder_type: str) -> dict:
 
     Args:
         reminder_type: "24h" or "1h"
+        db: Optional database connection (for testing)
 
     Returns:
         dict: Statistics with keys "sent", "failed", "skipped"
@@ -213,7 +262,7 @@ async def run_reminder_job(reminder_type: str) -> dict:
     stats = {"sent": 0, "failed": 0, "skipped": 0}
 
     # Get appointments needing reminders
-    reminders = await get_due_reminders(reminder_type)
+    reminders = await get_due_reminders(reminder_type, db)
 
     for appointment in reminders:
         phone = appointment["patient_phone"]
@@ -224,7 +273,7 @@ async def run_reminder_job(reminder_type: str) -> dict:
 
         if success:
             # Mark as sent
-            await mark_reminder_sent(appointment_id, reminder_type)
+            await mark_reminder_sent(appointment_id, reminder_type, db)
             stats["sent"] += 1
         else:
             stats["failed"] += 1
