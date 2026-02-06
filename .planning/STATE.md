@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Fully automated appointment booking and management that eliminates manual coordination - patients can book, pay, cancel, and receive prescriptions entirely through WhatsApp while the doctor focuses solely on consultations through a clean web interface.
-**Current focus:** Phase 1 - Foundation
+**Current focus:** Phase 2 - WhatsApp Bot & Booking Flow
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation)
-Plan: 5 of 5 in current phase
-Status: Phase verified and complete
-Last activity: 2026-02-05 — Phase 1 verified (8/8 must-haves) after gap closure
+Phase: 2 of 5 (WhatsApp Bot & Booking Flow)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-06 — Completed 02-01-PLAN.md
 
-Progress: [██████████] 100% of Phase 1 (Foundation) ✓
+Progress: [██░░░░░░░░] 1 of 5 Phase 2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 11 min
-- Total execution time: 0.9 hours
+- Total plans completed: 6
+- Average duration: 10 min
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
+| 02-whatsapp-bot-booking-flow | 1/5 | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (12min), 01-02 (17min), 01-03 (13min), 01-04 (6min), 01-05 (7min)
-- Trend: Maintaining high velocity (7 min for gap closure plan)
+- Last 5 plans: 01-02 (17min), 01-03 (13min), 01-04 (6min), 01-05 (7min), 02-01 (5min)
+- Trend: High velocity maintained (5 min for WhatsApp integration plan)
 
 *Updated after each plan completion*
 
@@ -63,6 +64,11 @@ Recent decisions affecting current work:
 - **01-05**: Database initialization runs in lifespan startup with try/except for fail-fast behavior
 - **01-05**: init_db() is safe to run on every startup (CREATE TABLE IF NOT EXISTS)
 - **01-05**: Standardized on datetime.now(timezone.utc) throughout codebase to avoid deprecation warnings
+- **02-01**: WhatsApp Cloud API v21.0 for messaging integration
+- **02-01**: Exponential backoff retry (1s, 2s, 4s) for 5xx and network errors
+- **02-01**: Failed sends return None and log alerts without raising exceptions
+- **02-01**: Webhook always returns 200 to Meta to prevent retry storms
+- **02-01**: Message deduplication via idempotency framework using message_id
 
 ### Pending Todos
 
@@ -70,14 +76,12 @@ None yet.
 
 ### Blockers/Concerns
 
-None. Phase 1 verified and complete.
-
-**Ready for Phase 2**: All foundation infrastructure operational and verified - database auto-initialization, auth, deployment, admin tools, and data integrity framework in place.
+**User Setup Required**: Plan 02-01 introduced WhatsApp Cloud API integration requiring manual Meta Business Suite configuration (see 02-USER-SETUP.md). Must be completed before WhatsApp integration will function in production.
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Stopped at: Phase 1 verified and complete (8/8 must-haves, all gaps closed)
+Last session: 2026-02-06
+Stopped at: Completed 02-01-PLAN.md (WhatsApp Integration)
 Resume file: None
 
-**Phase 1 (Foundation) Complete ✓** - Verified and ready for Phase 2 (WhatsApp Bot & Booking Flow)
+**Phase 2 (WhatsApp Bot & Booking Flow) In Progress** - WhatsApp messaging foundation complete (1/5 plans)
