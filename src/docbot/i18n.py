@@ -290,6 +290,27 @@ MESSAGES = {
         "te": "మీ ₹500 రీఫండ్ విజయవంతంగా ప్రాసెస్ చేయబడింది. ఇది 5-7 వ్యాపార దినాల్లో మీ ఖాతాలో కనిపిస్తుంది.",
         "hi": "आपका ₹500 का रिफंड सफलतापूर्वक प्रोसेस हो गया है। यह 5-7 व्यावसायिक दिनों में आपके खाते में दिखाई देगा।"
     },
+    # Reminder Messages
+    "reminder_24h_online": {
+        "en": "Reminder: Your online consultation is tomorrow at {time}. Join here: {meet_link}",
+        "te": "రిమైండర్: మీ ఆన్‌లైన్ సంప్రదింపు రేపు {time} కి. ఇక్కడ చేరండి: {meet_link}",
+        "hi": "अनुस्मारक: आपका ऑनलाइन परामर्श कल {time} बजे है। यहाँ जुड़ें: {meet_link}"
+    },
+    "reminder_24h_offline": {
+        "en": "Reminder: Your appointment is tomorrow at {time}. Clinic: {clinic_address}",
+        "te": "రిమైండర్: మీ అపాయింట్‌మెంట్ రేపు {time} కి. క్లినిక్: {clinic_address}",
+        "hi": "अनुस्मारक: आपका अपॉइंटमेंट कल {time} बजे है। क्लिनिक: {clinic_address}"
+    },
+    "reminder_1h_online": {
+        "en": "Your consultation starts in 1 hour at {time}. Join: {meet_link}",
+        "te": "మీ సంప్రదింపు 1 గంటలో {time} కి ప్రారంభమవుతుంది. చేరండి: {meet_link}",
+        "hi": "आपका परामर्श 1 घंटे में {time} बजे शुरू होगा। जुड़ें: {meet_link}"
+    },
+    "reminder_1h_offline": {
+        "en": "Your appointment starts in 1 hour at {time}. Clinic: {clinic_address}",
+        "te": "మీ అపాయింట్‌మెంట్ 1 గంటలో {time} కి ప్రారంభమవుతుంది. క్లినిక్: {clinic_address}",
+        "hi": "आपका अपॉइंटमेंट 1 घंटे में {time} बजे शुरू होगा। क्लिनिक: {clinic_address}"
+    },
 }
 
 
