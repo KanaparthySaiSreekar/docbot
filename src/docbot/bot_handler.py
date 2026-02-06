@@ -13,7 +13,9 @@ from docbot import (
     whatsapp_client,
 )
 from docbot.alerts import log_alert
+from docbot.calendar_service import create_appointment_event
 from docbot.config import get_settings
+from docbot.payment_service import create_payment_for_appointment
 from docbot.conversation import (
     CONFIRM_BOOKING,
     ENTER_AGE,
@@ -672,29 +674,59 @@ async def _handle_confirm_booking(
         # Send confirmation message
         date_display = format_date_for_display(date_str)
         time_display = format_time_for_display(slot_time)
+        consultation_type = data["consultation_type"]
 
-        # Add meet link for online consultations
-        meet_link = ""
-        if data["consultation_type"] == "online":
-            meet_link = "Meet Link: (will be sent after payment)\n"
+        if consultation_type == "online":
+            # Create payment link
+            payment_result = await create_payment_for_appointment(db, appointment["id"])
 
-        confirmation_text = i18n.get_message(
-            "booking_confirmed",
-            language,
-            appointment_id=appointment["id"][:8],  # Show first 8 chars
-            date=date_display,
-            time=time_display,
-            meet_link=meet_link
-        )
+            if payment_result and "short_url" in payment_result:
+                await whatsapp_client.send_text(
+                    phone,
+                    i18n.get_message(
+                        "booking_payment_required",
+                        language,
+                        date=date_display,
+                        time=time_display,
+                        amount="500",
+                        payment_link=payment_result["short_url"]
+                    )
+                )
+            else:
+                # Payment link creation failed - log alert, send fallback message
+                log_alert(
+                    "ERROR",
+                    "payment_link_creation_failed",
+                    f"Failed to create payment link for appointment {appointment['id']}",
+                    {"appointment_id": appointment["id"], "phone": phone}
+                )
+                await whatsapp_client.send_text(
+                    phone,
+                    i18n.get_message("booking_payment_error", language)
+                )
 
-        await whatsapp_client.send_text(phone, confirmation_text)
+        else:  # offline
+            # Create calendar event immediately
+            cal_result = await create_appointment_event(db, appointment["id"])
+
+            settings = get_settings()
+            await whatsapp_client.send_text(
+                phone,
+                i18n.get_message(
+                    "booking_confirmed_offline",
+                    language,
+                    date=date_display,
+                    time=time_display,
+                    clinic_address=settings.clinic.address
+                )
+            )
 
         # End conversation
         await conversation.end_conversation(db, phone)
 
         logger.info(
             f"Appointment created successfully: {appointment['id']}",
-            extra={"phone": phone, "appointment_id": appointment["id"]}
+            extra={"phone": phone, "appointment_id": appointment["id"], "type": consultation_type}
         )
 
     except ValueError as e:

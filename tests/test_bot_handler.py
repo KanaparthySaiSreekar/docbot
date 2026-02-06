@@ -312,11 +312,15 @@ async def test_booking_flow_confirm_creates_appointment(test_db):
 
     with patch("docbot.bot_handler.get_db", mock_get_db(test_db)), \
          patch("docbot.bot_handler.slot_service.get_available_slots") as mock_slots, \
+         patch("docbot.bot_handler.create_appointment_event") as mock_cal, \
          patch("docbot.bot_handler.whatsapp_client.send_buttons", new_callable=AsyncMock), \
-         patch("docbot.bot_handler.whatsapp_client.send_text", new_callable=AsyncMock) as mock_text:
+         patch("docbot.bot_handler.whatsapp_client.send_text", new_callable=AsyncMock) as mock_text, \
+         patch("docbot.bot_handler.get_settings") as mock_settings:
 
         # Mock that slot is still available (with our lock)
         mock_slots.return_value = []  # Slot appears taken but we check lock
+        mock_cal.return_value = {"event_id": "gcal-123"}
+        mock_settings.return_value.clinic.address = "123 Healthcare Street, Medical District, Mumbai, Maharashtra 400001"
 
         # Confirm booking
         msg = await simulate_message(phone, button_id="confirm_yes")
@@ -336,10 +340,11 @@ async def test_booking_flow_confirm_creates_appointment(test_db):
         assert row[2] == "Female"
         assert row[3] == "CONFIRMED"  # offline appointments are confirmed
 
-        # Verify confirmation message sent
+        # Verify confirmation message sent (offline gets clinic address)
         mock_text.assert_called()
         confirmation = mock_text.call_args[0][1]
-        assert "successfully" in confirmation.lower()
+        assert "confirmed" in confirmation.lower()
+        assert "Clinic Address" in confirmation
 
         # Verify conversation ended
         conv = await conversation.get_conversation(test_db, phone)
@@ -485,3 +490,91 @@ async def test_contact_clinic_shows_info(test_db):
         # Verify still in main menu
         conv = await conversation.get_conversation(test_db, phone)
         assert conv["state"] == MAIN_MENU
+
+
+@pytest.mark.asyncio
+async def test_booking_flow_online_creates_payment(test_db):
+    """Test that online booking creates payment link."""
+    phone = "+911234567802"
+
+    # Setup
+    await patient_store.set_language(test_db, phone, "en")
+    await conversation.start_conversation(test_db, phone, CONFIRM_BOOKING)
+    await conversation.update_conversation(
+        test_db, phone, CONFIRM_BOOKING, {
+            "consultation_type": "online",
+            "appointment_date": "2026-02-13",
+            "slot_time": "14:00",
+            "patient_name": "Online Test",
+            "patient_age": 28,
+            "patient_gender": "Female"
+        }
+    )
+
+    # Lock the slot
+    await booking_service.lock_slot(test_db, phone, "2026-02-13", "14:00")
+
+    with patch("docbot.bot_handler.get_db", mock_get_db(test_db)), \
+         patch("docbot.bot_handler.create_payment_for_appointment") as mock_payment, \
+         patch("docbot.bot_handler.whatsapp_client.send_text", new_callable=AsyncMock) as mock_text:
+
+        mock_payment.return_value = {
+            "payment_id": "pay-123",
+            "short_url": "https://rzp.io/test"
+        }
+
+        # Trigger confirmation
+        msg = await simulate_message(phone, button_id="confirm_yes")
+        await bot_handler.handle_message(msg)
+
+        # Verify payment link creation was called
+        mock_payment.assert_called_once()
+
+        # Verify payment link sent in message
+        assert mock_text.called
+        sent_message = mock_text.call_args[0][1]
+        assert "https://rzp.io/test" in sent_message
+        assert "₹500" in sent_message
+
+
+@pytest.mark.asyncio
+async def test_booking_flow_offline_creates_calendar(test_db):
+    """Test that offline booking creates calendar event immediately."""
+    phone = "+911234567803"
+
+    # Setup
+    await patient_store.set_language(test_db, phone, "en")
+    await conversation.start_conversation(test_db, phone, CONFIRM_BOOKING)
+    await conversation.update_conversation(
+        test_db, phone, CONFIRM_BOOKING, {
+            "consultation_type": "offline",
+            "appointment_date": "2026-02-14",
+            "slot_time": "15:00",
+            "patient_name": "Offline Test",
+            "patient_age": 45,
+            "patient_gender": "Male"
+        }
+    )
+
+    # Lock the slot
+    await booking_service.lock_slot(test_db, phone, "2026-02-14", "15:00")
+
+    with patch("docbot.bot_handler.get_db", mock_get_db(test_db)), \
+         patch("docbot.bot_handler.create_appointment_event") as mock_cal, \
+         patch("docbot.bot_handler.whatsapp_client.send_text", new_callable=AsyncMock) as mock_text, \
+         patch("docbot.bot_handler.get_settings") as mock_settings:
+
+        mock_cal.return_value = {"event_id": "gcal-123"}
+        mock_settings.return_value.clinic.address = "123 Main St, City"
+
+        # Trigger offline booking confirmation
+        msg = await simulate_message(phone, button_id="confirm_yes")
+        await bot_handler.handle_message(msg)
+
+        # Verify calendar creation was called
+        mock_cal.assert_called_once()
+
+        # Verify clinic address sent in message
+        assert mock_text.called
+        sent_message = mock_text.call_args[0][1]
+        assert "123 Main St, City" in sent_message

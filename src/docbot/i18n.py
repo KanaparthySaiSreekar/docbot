@@ -218,6 +218,22 @@ MESSAGES = {
         "te": "⚠️ ఈ స్లాట్ ఇకపై అందుబాటులో లేదు. దయచేసి మరొకటి ఎంచుకోండి.",
         "hi": "⚠️ यह स्लॉट अब उपलब्ध नहीं है। कृपया दूसरा चुनें।",
     },
+    # Payment & Calendar Messages
+    "booking_payment_required": {
+        "en": "Your online consultation is reserved!\n\nDate: {date}\nTime: {time}\n\nPlease complete payment of ₹{amount}:\n{payment_link}\n\nPayment link expires in 10 minutes.",
+        "te": "మీ ఆన్‌లైన్ సంప్రదింపు రిజర్వ్ చేయబడింది!\n\nతేదీ: {date}\nసమయం: {time}\n\nదయచేసి ₹{amount} చెల్లింపు పూర్తి చేయండి:\n{payment_link}\n\nచెల్లింపు లింక్ 10 నిమిషాల్లో గడువు ముగుస్తుంది.",
+        "hi": "आपका ऑनलाइन परामर्श आरक्षित है!\n\nतारीख: {date}\nसमय: {time}\n\nकृपया ₹{amount} का भुगतान पूरा करें:\n{payment_link}\n\nभुगतान लिंक 10 मिनट में समाप्त हो जाएगा।"
+    },
+    "booking_payment_error": {
+        "en": "We're having trouble processing payments. Please try booking again or contact the clinic.",
+        "te": "చెల్లింపులు ప్రాసెస్ చేయడంలో సమస్య ఉంది. దయచేసి మళ్లీ ప్రయత్నించండి లేదా క్లినిక్‌ను సంప్రదించండి.",
+        "hi": "भुगतान प्रोसेस करने में समस्या हो रही है। कृपया फिर से प्रयास करें या क्लिनिक से संपर्क करें।"
+    },
+    "booking_confirmed_offline": {
+        "en": "Your appointment is confirmed!\n\nDate: {date}\nTime: {time}\n\nClinic Address:\n{clinic_address}\n\nPlease arrive 10 minutes early.",
+        "te": "మీ అపాయింట్‌మెంట్ నిర్ధారించబడింది!\n\nతేదీ: {date}\nసమయం: {time}\n\nక్లినిక్ చిరునామా:\n{clinic_address}\n\n10 నిమిషాల ముందుగా రండి.",
+        "hi": "आपका अपॉइंटमेंट कन्फर्म हो गया!\n\nतारीख: {date}\nसमय: {time}\n\nक्लिनिक का पता:\n{clinic_address}\n\nकृपया 10 मिनट पहले पहुंचें।"
+    },
 }
 
 
