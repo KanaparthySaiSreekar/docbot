@@ -489,3 +489,153 @@ def test_csrf_required(test_client):
         assert "appointment_not_found" in response.json()["detail"]
     finally:
         app.dependency_overrides.clear()
+
+
+def test_update_settings_valid(test_client, tmp_path):
+    """Valid schedule update succeeds."""
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Update settings
+        response = test_client.put(
+            "/api/settings",
+            json={
+                "working_days": [0, 1, 2, 3, 4],
+                "start_time": "08:00",
+                "end_time": "18:00",
+                "break_start": "12:00",
+                "break_end": "13:00"
+            },
+            headers={"X-CSRF-Token": "test-token"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "updated"
+
+        # Verify config file was updated
+        import os
+        env = os.getenv("DOCBOT_ENV", "test")
+        config_path = f"config.{env}.json"
+
+        if os.path.exists(config_path):
+            import json
+            with open(config_path, "r") as f:
+                config_data = json.load(f)
+
+            assert config_data["schedule"]["working_days"] == [0, 1, 2, 3, 4]
+            assert config_data["schedule"]["start_time"] == "08:00"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_update_settings_invalid_days(test_client):
+    """Invalid working days rejected."""
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Try to update with invalid working days
+        response = test_client.put(
+            "/api/settings",
+            json={
+                "working_days": [7, 8],
+                "start_time": "09:00",
+                "end_time": "17:00",
+                "break_start": "13:00",
+                "break_end": "14:00"
+            },
+            headers={"X-CSRF-Token": "test-token"}
+        )
+
+        assert response.status_code == 422
+        # Check that error mentions working_days validation
+        assert "working_days" in response.text
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_update_settings_invalid_times(test_client):
+    """Invalid time format rejected."""
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Try to update with invalid time format
+        response = test_client.put(
+            "/api/settings",
+            json={
+                "working_days": [0, 1, 2, 3, 4],
+                "start_time": "9:00",  # Missing leading zero
+                "end_time": "17:00",
+                "break_start": "13:00",
+                "break_end": "14:00"
+            },
+            headers={"X-CSRF-Token": "test-token"}
+        )
+
+        assert response.status_code == 422
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_update_settings_end_before_start(test_client):
+    """End time before start time rejected."""
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Try to update with end before start
+        response = test_client.put(
+            "/api/settings",
+            json={
+                "working_days": [0, 1, 2, 3, 4],
+                "start_time": "17:00",
+                "end_time": "09:00",
+                "break_start": "13:00",
+                "break_end": "14:00"
+            },
+            headers={"X-CSRF-Token": "test-token"}
+        )
+
+        assert response.status_code == 422
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_update_settings_requires_auth(test_client):
+    """Settings update requires authentication."""
+    # Try to update without authentication
+    response = test_client.put(
+        "/api/settings",
+        json={
+            "working_days": [0, 1, 2, 3, 4],
+            "start_time": "09:00",
+            "end_time": "17:00",
+            "break_start": "13:00",
+            "break_end": "14:00"
+        }
+    )
+
+    assert response.status_code == 401

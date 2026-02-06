@@ -1,11 +1,15 @@
 """Dashboard REST API endpoints for appointment management."""
 
+import json
 import logging
+import os
+import re
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from docbot.auth import require_auth
 from docbot.config import get_settings
@@ -71,6 +75,49 @@ class RetryRefundResponse(BaseModel):
 class ResendResponse(BaseModel):
     """Response for resend confirmation."""
     status: str
+
+
+class ScheduleUpdateRequest(BaseModel):
+    """Request body for schedule update."""
+    working_days: list[int]  # 0=Monday, 6=Sunday
+    start_time: str  # HH:MM
+    end_time: str  # HH:MM
+    break_start: str  # HH:MM
+    break_end: str  # HH:MM
+
+    @field_validator('working_days')
+    @classmethod
+    def validate_working_days(cls, v):
+        if not v:
+            raise ValueError('At least one working day required')
+        if not all(0 <= d <= 6 for d in v):
+            raise ValueError('Working days must be 0-6')
+        return sorted(set(v))
+
+    @field_validator('start_time', 'end_time', 'break_start', 'break_end')
+    @classmethod
+    def validate_time_format(cls, v):
+        if not re.match(r'^([01]\d|2[0-3]):[0-5]\d$', v):
+            raise ValueError('Time must be HH:MM format')
+        return v
+
+    @field_validator('end_time')
+    @classmethod
+    def validate_end_after_start(cls, v, info):
+        if 'start_time' in info.data and v <= info.data['start_time']:
+            raise ValueError('End time must be after start time')
+        return v
+
+    @field_validator('break_end')
+    @classmethod
+    def validate_break_within_hours(cls, v, info):
+        if 'break_start' in info.data and v <= info.data['break_start']:
+            raise ValueError('Break end must be after break start')
+        if 'start_time' in info.data and info.data.get('break_start', '') < info.data['start_time']:
+            raise ValueError('Break must be within working hours')
+        if 'end_time' in info.data and v > info.data['end_time']:
+            raise ValueError('Break must be within working hours')
+        return v
 
 
 # Utility functions
@@ -287,6 +334,53 @@ async def get_settings_endpoint(
         break_end=schedule.break_end,
         slot_duration_minutes=schedule.slot_duration_minutes
     )
+
+
+@router.put("/settings")
+async def update_settings_endpoint(
+    schedule: ScheduleUpdateRequest,
+    request: Request,
+    user: dict = Depends(require_auth),
+):
+    """
+    Update working hours configuration.
+
+    Persists to config.{env}.json file.
+    """
+    settings = get_settings()
+    env = os.getenv("DOCBOT_ENV", "test")
+    config_path = Path(f"config.{env}.json")
+
+    # Read current config
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            config_data = json.load(f)
+    else:
+        config_data = {}
+
+    # Update schedule section
+    if "schedule" not in config_data:
+        config_data["schedule"] = {}
+
+    config_data["schedule"]["working_days"] = schedule.working_days
+    config_data["schedule"]["start_time"] = schedule.start_time
+    config_data["schedule"]["end_time"] = schedule.end_time
+    config_data["schedule"]["break_start"] = schedule.break_start
+    config_data["schedule"]["break_end"] = schedule.break_end
+
+    # Write back
+    with open(config_path, "w") as f:
+        json.dump(config_data, f, indent=2)
+
+    # Clear config cache to reload
+    get_settings.cache_clear()
+
+    logger.info("Schedule settings updated", extra={
+        "user": user.get("email"),
+        "working_days": schedule.working_days
+    })
+
+    return {"status": "updated"}
 
 
 @router.post("/appointments/{appointment_id}/cancel", response_model=CancelResponse)
