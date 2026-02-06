@@ -33,3 +33,26 @@ export interface ScheduleSettings {
 }
 
 export type CalendarView = 'day' | 'week';
+
+export interface Medicine {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  notes?: string;
+}
+
+export interface CreatePrescriptionData {
+  appointment_id: string;
+  medicines: Medicine[];
+  instructions?: string;
+}
+
+export interface Prescription {
+  id: string;
+  appointment_id: string;
+  patient_name: string;
+  created_at: string;
+  whatsapp_sent: boolean;
+  download_url: string;
+}
