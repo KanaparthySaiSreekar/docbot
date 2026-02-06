@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 2 of 5 (WhatsApp Bot & Booking Flow)
-Plan: 4 of 4 in current phase
-Status: Phase verified and complete
-Last activity: 2026-02-06 — Phase 2 verified (5/5 must-haves) with complete booking flow
+Phase: 3 of 5 (Payments & Calendar Integration)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-06 — Completed 03-01-PLAN.md (Razorpay payment integration)
 
-Progress: [██████████] 100% of Phase 2 (WhatsApp Bot & Booking Flow) ✓
+Progress: [██████████░░] 50% of Phase 3 (Payments & Calendar Integration)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 8 min
-- Total execution time: 1.3 hours
+- Total execution time: 1.5 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [██████████] 100% of Phase 2 (WhatsApp Bot & Booki
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
+| 03-payments-calendar-integration | 1/2 | 10 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (7min), 02-01 (5min), 02-02 (10min), 02-03 (5min), 02-04 (7min)
-- Trend: Maintaining high velocity (avg 7 min per plan in Phase 2)
+- Last 5 plans: 02-01 (5min), 02-02 (10min), 02-03 (5min), 02-04 (7min), 03-01 (10min)
+- Trend: Steady velocity with TDD plans averaging 10 min (includes RED-GREEN cycles)
 
 *Updated after each plan completion*
 
@@ -84,6 +85,11 @@ Recent decisions affecting current work:
 - **02-04**: Integration tests mock WhatsApp client but use real test database for state assertions
 - **02-04**: Gender values stored in English, converted to lowercase for i18n lookup (gender_male, gender_female, gender_other)
 - **02-04**: Contact clinic and cancel appointment menu items are placeholders for Phase 3+ (show "Coming soon")
+- **03-01**: TDD approach for payment integration ensures correctness before production
+- **03-01**: Payment link expiry handled via slot soft-lock (not Razorpay expire_by) for consistent UX
+- **03-01**: Phone numbers cleaned (+91 prefix removed) before sending to Razorpay for compatibility
+- **03-01**: Webhook idempotency uses razorpay:{payment_id}:{event_type} as globally unique event_id
+- **03-01**: Payment confirmation transitions appointment PENDING_PAYMENT → CONFIRMED atomically
 
 ### Pending Todos
 
@@ -91,16 +97,18 @@ None yet.
 
 ### Blockers/Concerns
 
-**User Setup Required**: Plan 02-01 introduced WhatsApp Cloud API integration requiring manual Meta Business Suite configuration (see 02-USER-SETUP.md). Must be completed before WhatsApp integration will function in production.
+**User Setup Required (WhatsApp)**: Plan 02-01 introduced WhatsApp Cloud API integration requiring manual Meta Business Suite configuration (see 02-USER-SETUP.md). Must be completed before WhatsApp integration will function in production.
+
+**User Setup Required (Razorpay)**: Plan 03-01 introduced Razorpay payment integration requiring account creation, KYC verification, API key generation, and webhook configuration (see 03-USER-SETUP.md). Must be completed before online consultation payments will function.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Phase 3**: Complete patient-facing booking flow operational. Bot responds 24/7, handles language selection, type/date/slot selection with soft-locking, detail entry, and confirmation. Appointments created with correct initial status (PENDING_PAYMENT for online, CONFIRMED for offline). Payment integration and Google Calendar sync next.
+**Ready for Plan 03-02**: Razorpay payment integration complete. Payment links created for online consultations (₹500 fee), webhook processing transitions appointments to CONFIRMED. Google Calendar sync next to create calendar events for confirmed appointments.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 2 verified and complete (5/5 must-haves, all plans executed)
+Stopped at: Completed 03-01-PLAN.md (Razorpay payment integration with TDD)
 Resume file: None
 
-**Phase 2 (WhatsApp Bot & Booking Flow) Complete ✓** - Verified and ready for Phase 3 (Payments & Calendar Integration)
+**Phase 3 (Payments & Calendar Integration) In Progress** - Plan 03-01 complete (Razorpay), Plan 03-02 next (Google Calendar)
