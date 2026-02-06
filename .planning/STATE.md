@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 5 (WhatsApp Bot & Booking Flow)
-Plan: 3 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 — Completed 02-03-PLAN.md
+Last activity: 2026-02-06 — Completed 02-02-PLAN.md (Patient Data Layer)
 
 Progress: [██████░░░░] 2 of 4 Phase 2 plans complete
 
@@ -21,18 +21,18 @@ Progress: [██████░░░░] 2 of 4 Phase 2 plans complete
 **Velocity:**
 - Total plans completed: 7
 - Average duration: 9 min
-- Total execution time: 1.1 hours
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
-| 02-whatsapp-bot-booking-flow | 2/4 | 10 min | 5 min |
+| 02-whatsapp-bot-booking-flow | 2/4 | 15 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (13min), 01-04 (6min), 01-05 (7min), 02-01 (5min), 02-03 (5min)
-- Trend: Exceptional velocity maintained (5 min average for Phase 2 plans)
+- Last 5 plans: 01-04 (6min), 01-05 (7min), 02-01 (5min), 02-02 (10min), 02-03 (5min)
+- Trend: Consistent velocity maintained (avg 7 min for recent plans)
 
 *Updated after each plan completion*
 
@@ -69,6 +69,11 @@ Recent decisions affecting current work:
 - **02-01**: Failed sends return None and log alerts without raising exceptions
 - **02-01**: Webhook always returns 200 to Meta to prevent retry storms
 - **02-01**: Message deduplication via idempotency framework using message_id
+- **02-02**: Auto-discovery of schema files - database.py loads all .sql files in sorted order for automatic migration management
+- **02-02**: Conversation data stored as JSON blob for flexibility in tracking booking flow progress
+- **02-02**: 30-minute rolling expiry for conversations to prevent stale bookings
+- **02-02**: One active conversation per phone enforced at database level (PRIMARY KEY on phone)
+- **02-02**: Message catalog structure supports template substitution via .format()
 - **02-03**: TDD approach for business logic ensures slot generation and booking correctness before bot integration
 - **02-03**: Break period is half-open interval (break_start excluded, break_end included)
 - **02-03**: Same-day filtering uses IST time comparison for user-facing correctness
@@ -87,7 +92,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-03-PLAN.md (Slot Availability and Booking Service)
+Stopped at: Completed 02-02-PLAN.md (Patient Data Layer)
 Resume file: None
 
-**Phase 2 (WhatsApp Bot & Booking Flow) In Progress** - Slot and booking services complete, ready for bot flow (2/4 plans)
+**Phase 2 (WhatsApp Bot & Booking Flow) In Progress** - Patient data layer, conversation state, and i18n complete (2/4 plans)
