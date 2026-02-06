@@ -34,3 +34,11 @@ config.test.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Runtime generated files
+prescriptions/
+nul
+
+# Frontend build artifacts (keep source, ignore build)
+frontend/dist/
+frontend/node_modules/

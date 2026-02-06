@@ -179,7 +179,7 @@ async def readiness_check() -> dict[str, Any]:
 
 
 @app.get("/prescriptions/download/{token}")
-async def download_prescription(token: str, db = Depends(lambda: get_db())):
+async def download_prescription(token: str):
     """
     Public endpoint to download prescription PDF via secure token.
 
@@ -218,6 +218,8 @@ async def download_prescription(token: str, db = Depends(lambda: get_db())):
             media_type="application/pdf",
             filename=f"prescription_{prescription['id'][:8]}.pdf"
         )
+
+    raise HTTPException(status_code=500, detail="Database connection failed")
 
 
 @app.get("/")
