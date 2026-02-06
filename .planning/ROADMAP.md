@@ -114,10 +114,15 @@ Plans:
   6. Soft launch completed with family members before production rollout
   7. Emergency toggle can disable new bookings without affecting reminders or existing appointments
   8. Read-only dashboard mode available for incident response (view only, no mutations)
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 05-01: TBD during phase planning
+- [ ] 05-01-PLAN.md -- Automated appointment reminders (24h and 1h)
+- [ ] 05-02-PLAN.md -- Prescription PDF generation with signature and credentials
+- [ ] 05-03-PLAN.md -- Dashboard prescription UI with patient selection and form
+- [ ] 05-04-PLAN.md -- Prescription WhatsApp delivery with secure URLs
+- [ ] 05-05-PLAN.md -- Emergency mode and read-only dashboard controls
+- [ ] 05-06-PLAN.md -- End-to-end tests and test scenario checklist
 
 ## Progress
 
@@ -130,4 +135,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. WhatsApp Bot & Booking Flow | 4/4 | Complete | 2026-02-06 |
 | 3. Payments & Calendar Integration | 5/5 | Complete | 2026-02-06 |
 | 4. Dashboard & Management | 6/6 | Complete | 2026-02-06 |
-| 5. Automation & Launch | 0/TBD | Not started | - |
+| 5. Automation & Launch | 0/6 | Not started | - |
