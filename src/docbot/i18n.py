@@ -234,6 +234,62 @@ MESSAGES = {
         "te": "మీ అపాయింట్‌మెంట్ నిర్ధారించబడింది!\n\nతేదీ: {date}\nసమయం: {time}\n\nక్లినిక్ చిరునామా:\n{clinic_address}\n\n10 నిమిషాల ముందుగా రండి.",
         "hi": "आपका अपॉइंटमेंट कन्फर्म हो गया!\n\nतारीख: {date}\nसमय: {time}\n\nक्लिनिक का पता:\n{clinic_address}\n\nकृपया 10 मिनट पहले पहुंचें।"
     },
+    # Cancellation Messages
+    "no_appointments_to_cancel": {
+        "en": "You don't have any upcoming appointments to cancel.",
+        "te": "రద్దు చేయడానికి మీకు అపాయింట్‌మెంట్లు లేవు.",
+        "hi": "आपके पास रद्द करने के लिए कोई अपॉइंटमेंट नहीं है।"
+    },
+    "no_cancellable_appointments": {
+        "en": "Your appointments are within 1 hour and cannot be cancelled.",
+        "te": "మీ అపాయింట్‌మెంట్లు 1 గంటలోపు ఉన్నాయి, రద్దు చేయలేము.",
+        "hi": "आपके अपॉइंटमेंट 1 घंटे के भीतर हैं और रद्द नहीं किए जा सकते।"
+    },
+    "select_appointment_to_cancel": {
+        "en": "Select the appointment you want to cancel:",
+        "te": "రద్దు చేయాలనుకునే అపాయింట్‌మెంట్ ఎంచుకోండి:",
+        "hi": "रद्द करने के लिए अपॉइंटमेंट चुनें:"
+    },
+    "cancellation_with_refund": {
+        "en": "Your appointment has been cancelled. Your refund of ₹500 will be processed within 5-7 business days.",
+        "te": "మీ అపాయింట్‌మెంట్ రద్దు చేయబడింది. ₹500 రీఫండ్ 5-7 రోజుల్లో అందుతుంది.",
+        "hi": "आपका अपॉइंटमेंट रद्द हो गया। ₹500 का रिफंड 5-7 दिनों में मिलेगा।"
+    },
+    "cancellation_refund_pending": {
+        "en": "Your appointment has been cancelled. Your refund is being processed and will be completed shortly.",
+        "te": "మీ అపాయింట్‌మెంట్ రద్దు చేయబడింది. రీఫండ్ ప్రాసెస్ అవుతోంది.",
+        "hi": "आपका अपॉइंटमेंट रद्द हो गया। रिफंड प्रोसेस हो रहा है।"
+    },
+    "cancellation_confirmed": {
+        "en": "Your appointment has been cancelled successfully.",
+        "te": "మీ అపాయింట్‌మెంట్ విజయవంతంగా రద్దు చేయబడింది.",
+        "hi": "आपका अपॉइंटमेंट सफलतापूर्वक रद्द हो गया।"
+    },
+    "cancellation_too_late": {
+        "en": "Sorry, appointments cannot be cancelled within 1 hour of the scheduled time. Please contact the clinic.",
+        "te": "క్షమించండి, అపాయింట్‌మెంట్ సమయానికి 1 గంట ముందు రద్దు చేయలేరు.",
+        "hi": "क्षमा करें, निर्धारित समय से 1 घंटे पहले रद्द नहीं कर सकते।"
+    },
+    "cancellation_failed": {
+        "en": "Sorry, we couldn't cancel your appointment. Please try again or contact the clinic.",
+        "te": "క్షమించండి, అపాయింట్‌మెంట్ రద్దు చేయలేకపోయాము.",
+        "hi": "क्षमा करें, अपॉइंटमेंट रद्द नहीं हो सका।"
+    },
+    "payment_received_meet_link": {
+        "en": "Payment received! Your online consultation is confirmed.\n\nDate: {date}\nTime: {time}\n\nJoin here: {meet_link}\n\nPlease join 5 minutes before your appointment.",
+        "te": "చెల్లింపు అందింది! మీ ఆన్‌లైన్ సంప్రదింపు ధృవీకరించబడింది.\n\nతేదీ: {date}\nసమయం: {time}\n\nఇక్కడ చేరండి: {meet_link}\n\nదయచేసి మీ అపాయింట్‌మెంట్‌కు 5 నిమిషాల ముందు చేరండి.",
+        "hi": "भुगतान प्राप्त! आपका ऑनलाइन परामर्श पुष्ट है।\n\nतारीख: {date}\nसमय: {time}\n\nयहाँ जुड़ें: {meet_link}\n\nकृपया अपने अपॉइंटमेंट से 5 मिनट पहले जुड़ें।"
+    },
+    "payment_received_pending_link": {
+        "en": "Payment received! Your online consultation on {date} at {time} is confirmed.\n\nYour Google Meet link will be sent shortly.",
+        "te": "చెల్లింపు అందింది! {date} న {time} కి మీ ఆన్‌లైన్ సంప్రదింపు ధృవీకరించబడింది.\n\nమీ Google Meet లింక్ త్వరలో పంపబడుతుంది.",
+        "hi": "भुगतान प्राप्त! {date} को {time} बजे आपका ऑनलाइन परामर्श पुष्ट है।\n\nआपका Google Meet लिंक जल्द भेजा जाएगा।"
+    },
+    "refund_completed": {
+        "en": "Your refund of ₹500 has been processed successfully. It will reflect in your account within 5-7 business days.",
+        "te": "మీ ₹500 రీఫండ్ విజయవంతంగా ప్రాసెస్ చేయబడింది. ఇది 5-7 వ్యాపార దినాల్లో మీ ఖాతాలో కనిపిస్తుంది.",
+        "hi": "आपका ₹500 का रिफंड सफलतापूर्वक प्रोसेस हो गया है। यह 5-7 व्यावसायिक दिनों में आपके खाते में दिखाई देगा।"
+    },
 }
 
 

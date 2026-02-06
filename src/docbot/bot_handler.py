@@ -12,6 +12,7 @@ from docbot import (
     slot_service,
     whatsapp_client,
 )
+from docbot.cancellation_service import can_cancel_appointment, cancel_appointment
 from docbot.alerts import log_alert
 from docbot.calendar_service import create_appointment_event
 from docbot.config import get_settings
@@ -84,6 +85,17 @@ async def handle_message(parsed_message: dict[str, Any]) -> None:
     phone = parsed_message["from"]
     button_id = parsed_message.get("button_id")
     text = parsed_message.get("text")
+
+    # Handle direct cancel button clicks (outside conversation flow)
+    if button_id and button_id.startswith("cancel_"):
+        appointment_id = button_id.replace("cancel_", "")
+        try:
+            async for db in get_db():
+                language = await patient_store.get_language(db, phone)
+                await _handle_cancel_confirm(db, phone, appointment_id, language)
+                return
+        except Exception as e:
+            logger.error(f"Error handling cancel: {e}", exc_info=True)
 
     try:
         async for db in get_db():
@@ -268,15 +280,8 @@ async def _handle_main_menu(db, phone: str, button_id: str | None, language: str
         await _send_main_menu(phone, language)
 
     elif button_id == "menu_cancel":
-        # Coming soon placeholder
-        if language == "en":
-            await whatsapp_client.send_text(phone, "Coming soon in next update")
-        elif language == "te":
-            await whatsapp_client.send_text(phone, "తదుపరి అప్‌డేట్‌లో వస్తుంది")
-        else:  # hi
-            await whatsapp_client.send_text(phone, "अगले अपडेट में आ रहा है")
-        # Stay in main menu
-        await _send_main_menu(phone, language)
+        # Show cancellable appointments
+        await _handle_cancel_menu(db, phone, language)
 
     else:
         # Invalid input
@@ -738,3 +743,78 @@ async def _handle_confirm_booking(
         await booking_service.release_lock(db, phone, date_str, slot_time)
         await conversation.update_conversation(db, phone, SELECT_SLOT, {})
         await _send_available_slots(db, phone, date_str, language)
+
+
+async def _handle_cancel_menu(db, phone: str, language: str) -> None:
+    """Handle cancel appointment menu."""
+    # Find patient's upcoming appointments
+    cursor = await db.execute(
+        """SELECT id, appointment_date, slot_time, consultation_type
+           FROM appointments
+           WHERE patient_phone = ?
+           AND status IN ('CONFIRMED', 'PENDING_PAYMENT')
+           AND appointment_date >= date('now')
+           ORDER BY appointment_date, slot_time
+           LIMIT 5""",
+        (phone,)
+    )
+    rows = await cursor.fetchall()
+
+    if not rows:
+        await whatsapp_client.send_text(phone, i18n.get_message("no_appointments_to_cancel", language))
+        await _send_main_menu(phone, language)
+        return
+
+    # Build list of cancellable appointments
+    sections = []
+    rows_list = []
+    for row in rows:
+        appt_id, date_str, slot_time, consult_type = row
+        can, reason = await can_cancel_appointment(db, appt_id)
+        if can:
+            formatted_date = format_date_for_display(date_str)
+            formatted_time = format_time_for_display(slot_time)
+            rows_list.append({
+                "id": f"cancel_{appt_id}",
+                "title": f"{formatted_date} {formatted_time}",
+                "description": consult_type.title()
+            })
+
+    if not rows_list:
+        await whatsapp_client.send_text(phone, i18n.get_message("no_cancellable_appointments", language))
+        await _send_main_menu(phone, language)
+        return
+
+    sections.append({"title": "Your Appointments", "rows": rows_list})
+
+    await whatsapp_client.send_list(
+        phone,
+        i18n.get_message("select_appointment_to_cancel", language),
+        "Cancel",
+        sections
+    )
+
+
+async def _handle_cancel_confirm(db, phone: str, appointment_id: str, language: str) -> None:
+    """Process cancellation confirmation."""
+    try:
+        result = await cancel_appointment(db, appointment_id)
+
+        if result["refund_status"] == "processed":
+            await whatsapp_client.send_text(phone, i18n.get_message("cancellation_with_refund", language))
+        elif result["refund_status"] == "pending":
+            await whatsapp_client.send_text(phone, i18n.get_message("cancellation_refund_pending", language))
+        else:
+            await whatsapp_client.send_text(phone, i18n.get_message("cancellation_confirmed", language))
+
+        # Return to main menu
+        await _send_main_menu(phone, language)
+
+    except ValueError as e:
+        if str(e) == "too_late":
+            await whatsapp_client.send_text(phone, i18n.get_message("cancellation_too_late", language))
+        else:
+            await whatsapp_client.send_text(phone, i18n.get_message("cancellation_failed", language))
+
+        # Return to main menu
+        await _send_main_menu(phone, language)
