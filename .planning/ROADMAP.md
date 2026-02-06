@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Infrastructure, authentication, and deployment setup
 - [x] **Phase 2: WhatsApp Bot & Booking Flow** - Patient-facing bot with booking capability
-- [ ] **Phase 3: Payments & Calendar Integration** - Complete online/offline booking with Google Calendar
+- [x] **Phase 3: Payments & Calendar Integration** - Complete online/offline booking with Google Calendar
 - [ ] **Phase 4: Dashboard & Management** - Doctor web interface and appointment operations
 - [ ] **Phase 5: Automation & Launch** - Notifications, prescriptions, testing, and production readiness
 
@@ -74,11 +74,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Razorpay client and payment service with webhook processing (TDD)
-- [ ] 03-02-PLAN.md -- Google Calendar OAuth2 client with Meet link generation
-- [ ] 03-03-PLAN.md -- Wire payment and calendar services into booking flow
-- [ ] 03-04-PLAN.md -- Patient cancellation with automatic refunds (TDD)
-- [ ] 03-05-PLAN.md -- Reconciliation job and refund webhook completion
+- [x] 03-01-PLAN.md -- Razorpay client and payment service with webhook processing (TDD)
+- [x] 03-02-PLAN.md -- Google Calendar OAuth2 client with Meet link generation
+- [x] 03-03-PLAN.md -- Wire payment and calendar services into booking flow
+- [x] 03-04-PLAN.md -- Patient cancellation with automatic refunds (TDD)
+- [x] 03-05-PLAN.md -- Reconciliation job and refund webhook completion
 
 ### Phase 4: Dashboard & Management
 **Goal**: Doctor has full web interface to view, manage, and configure appointments with operational visibility
@@ -123,6 +123,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete | 2026-02-05 |
 | 2. WhatsApp Bot & Booking Flow | 4/4 | Complete | 2026-02-06 |
-| 3. Payments & Calendar Integration | 0/5 | Not started | - |
+| 3. Payments & Calendar Integration | 5/5 | Complete | 2026-02-06 |
 | 4. Dashboard & Management | 0/TBD | Not started | - |
 | 5. Automation & Launch | 0/TBD | Not started | - |
