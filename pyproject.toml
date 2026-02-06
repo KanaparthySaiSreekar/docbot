@@ -23,6 +23,7 @@ dependencies = [
     "google-auth-httplib2>=0.3.0",
     "google-auth-oauthlib>=1.2.4",
     "starlette-csrf>=3.0.0",
+    "xhtml2pdf>=0.2.16",
 ]
 
 [dependency-groups]

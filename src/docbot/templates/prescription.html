@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; font-size: 14px; }
+    .header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+    .clinic-name { font-size: 24px; font-weight: bold; color: #2c3e50; }
+    .doctor-info { margin-top: 10px; color: #555; }
+    .patient-info { margin: 20px 0; padding: 15px; background: #f5f5f5; }
+    .rx-symbol { font-size: 28px; font-weight: bold; color: #2c3e50; margin: 20px 0; }
+    .medicines { margin: 20px 0; }
+    .medicine-item { margin: 10px 0; padding: 10px; border-left: 3px solid #3498db; }
+    .medicine-name { font-weight: bold; }
+    .dosage { color: #666; }
+    .instructions { margin: 20px 0; padding: 15px; background: #fffde7; }
+    .footer { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; }
+    .signature { text-align: right; }
+    .signature img { max-height: 60px; }
+    .electronic-notice { font-size: 10px; color: #888; margin-top: 20px; text-align: center; }
+    .prescription-id { font-size: 10px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="clinic-name">{{ clinic.name }}</div>
+    <div class="doctor-info">
+      {{ clinic.doctor_name }}, {{ clinic.doctor_degree }}<br>
+      Reg. No: {{ clinic.doctor_registration }}<br>
+      {{ clinic.address }}<br>
+      Phone: {{ clinic.phone }}
+    </div>
+  </div>
+
+  <div class="patient-info">
+    <strong>Patient:</strong> {{ patient_name }}<br>
+    <strong>Age/Gender:</strong> {{ patient_age }} / {{ patient_gender }}<br>
+    <strong>Date:</strong> {{ prescription_date }}<br>
+    <span class="prescription-id">Ref: {{ appointment_id }}</span>
+  </div>
+
+  <div class="rx-symbol">℞</div>
+
+  <div class="medicines">
+    {% for medicine in medicines %}
+    <div class="medicine-item">
+      <div class="medicine-name">{{ loop.index }}. {{ medicine.name }}</div>
+      <div class="dosage">{{ medicine.dosage }} - {{ medicine.frequency }} - {{ medicine.duration }}</div>
+      {% if medicine.notes %}<div class="notes">Note: {{ medicine.notes }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if instructions %}
+  <div class="instructions">
+    <strong>Instructions:</strong><br>
+    {{ instructions }}
+  </div>
+  {% endif %}
+
+  <div class="footer">
+    <div class="signature">
+      {% if signature_base64 %}
+      <img src="data:image/png;base64,{{ signature_base64 }}" alt="Signature"><br>
+      {% endif %}
+      <strong>{{ clinic.doctor_name }}</strong><br>
+      {{ clinic.doctor_degree }}<br>
+      Reg. No: {{ clinic.doctor_registration }}
+    </div>
+  </div>
+
+  <div class="electronic-notice">
+    Generated electronically on {{ generated_at }} | This is a computer-generated prescription
+  </div>
+</body>
+</html>

@@ -40,6 +40,19 @@ def to_ist(utc_dt: datetime) -> datetime:
     return utc_dt.astimezone(IST)
 
 
+def utc_to_ist(utc_dt: datetime) -> datetime:
+    """
+    Convert UTC datetime to IST (alias for to_ist).
+
+    Args:
+        utc_dt: Datetime in UTC
+
+    Returns:
+        datetime: Datetime in IST
+    """
+    return to_ist(utc_dt)
+
+
 def to_utc(ist_dt: datetime) -> datetime:
     """
     Convert IST datetime to UTC.
