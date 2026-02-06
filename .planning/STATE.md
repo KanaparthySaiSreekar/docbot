@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 5 (Payments & Calendar Integration)
-Plan: 4 of 4 in current phase
+Plan: 5 of 5 in current phase
 Status: Phase complete
-Last activity: 2026-02-06 — Completed 03-04-PLAN.md (Cancellation & Refunds with exponential backoff retry)
+Last activity: 2026-02-06 — Completed 03-05-PLAN.md (Reconciliation Job with nightly calendar/payment sync)
 
 Progress: [████████████] 100% of Phase 3 (Payments & Calendar Integration) ✓
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 8 min
-- Total execution time: 1.9 hours
+- Total plans completed: 14
+- Average duration: 9 min
+- Total execution time: 2.1 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████████] 100% of Phase 3 (Payments & Cal
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
-| 03-payments-calendar-integration | 4/4 | 38 min | 10 min |
+| 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-04 (7min), 03-01 (10min), 03-02 (13min), 03-03 (8min), 03-04 (7min)
-- Trend: Consistent velocity, TDD plans 7-10 min, integration plans 8-13 min
+- Last 5 plans: 03-01 (10min), 03-02 (13min), 03-03 (8min), 03-04 (7min), 03-05 (11min)
+- Trend: Consistent velocity, phase 3 averaging 10 min per plan
 
 *Updated after each plan completion*
 
@@ -104,6 +104,11 @@ Recent decisions affecting current work:
 - **03-04**: Online cancellations trigger automatic refund; offline cancellations have no refund
 - **03-04**: Calendar event deletion is part of cancellation flow (cleanup)
 - **03-04**: Refund webhook processes refund.processed events for async confirmation
+- **03-05**: Database is authoritative source of truth; calendar events synced as projection
+- **03-05**: Reconciliation retries limited to 20 per run to prevent API quota exhaustion
+- **03-05**: Calendar drift checks only next 7 days for performance optimization
+- **03-05**: Refund webhook integrated into existing Razorpay webhook endpoint with event type routing
+- **03-05**: i18n template variables passed as kwargs for consistency with existing API
 
 ### Pending Todos
 
@@ -119,14 +124,14 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Phase 4**: Phase 3 complete with full end-to-end booking and cancellation flows. Online flow: patient books → payment link → webhook → calendar event → Meet link. Offline flow: patient books → calendar event → clinic address. Cancellation flow: patient cancels → refund initiated (online only) → calendar deleted. Admin dashboard next for doctor-side management.
+**Ready for Phase 4**: Phase 3 complete with full end-to-end booking, cancellation, and reconciliation flows. Online flow: patient books → payment link → webhook → calendar event → Meet link → refund on cancel. Offline flow: patient books → calendar event → clinic address → cancel cleanup. Reconciliation: nightly job retries failures, checks drift, identifies orphans. Admin dashboard next for doctor-side management.
 
-**Background Job Needed**: Plan 03-04 introduced retry_failed_refunds() function that should be called periodically (every 1-5 minutes) to process pending refunds. Can be implemented as FastAPI background task, cron job, or Phase 5 worker.
+**Cron Job Setup Recommended**: Plan 03-05 created scripts/run_reconciliation.py for nightly data integrity checks. Schedule with crontab: `0 2 * * * cd /app && uv run python scripts/run_reconciliation.py` to run at 2 AM daily. Handles calendar drift detection, failed operation retries, and orphaned event cleanup.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-04-PLAN.md (Cancellation & Refunds with exponential backoff retry)
+Stopped at: Completed 03-05-PLAN.md (Reconciliation Job with nightly calendar/payment sync)
 Resume file: None
 
-**Phase 3 (Payments & Calendar Integration) Complete ✓** - All 4 plans executed: Razorpay payment service (03-01), Google Calendar integration (03-02), end-to-end booking flows (03-03), and cancellation with automatic refunds (03-04)
+**Phase 3 (Payments & Calendar Integration) Complete ✓** - All 5 plans executed: Razorpay payment service (03-01), Google Calendar integration (03-02), end-to-end booking flows (03-03), cancellation with automatic refunds (03-04), and reconciliation job for data integrity (03-05)
