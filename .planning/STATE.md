@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 5 (Dashboard & Management)
-Plan: 3 of 6 in current phase
+Plan: 4 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-06 — Completed 04-03-PLAN.md (Calendar Views & Appointment Display)
+Last activity: 2026-02-06 — Completed 04-04-PLAN.md (Doctor Actions & Mutations)
 
-Progress: [█████████████████░] 85% (17/20 plans complete)
+Progress: [█████████████████░] 90% (18/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 9 min
-- Total execution time: 2.5 hours
+- Total execution time: 2.8 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████████████████░] 85% (17/20 pl
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
-| 04-dashboard-and-management | 3/6 | 22 min | 7 min |
+| 04-dashboard-and-management | 4/6 | 40 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (7min), 03-05 (11min), 04-01 (7min), 04-02 (7min), 04-03 (8min)
-- Trend: Excellent velocity maintained, consistent 7-8 min per plan in phase 4
+- Last 5 plans: 03-05 (11min), 04-01 (7min), 04-02 (7min), 04-03 (8min), 04-04 (18min)
+- Trend: Phase 4 showing good progress, latest plan took longer due to CSRF integration complexity
 
 *Updated after each plan completion*
 
@@ -124,6 +124,12 @@ Recent decisions affecting current work:
 - **04-03**: Week view starts on Monday following standard business calendar convention
 - **04-03**: Compact mode for appointment cards optimizes space in calendar views
 - **04-03**: Cancel button placeholder logs to console, mutations implemented in 04-04
+- **04-04**: CSRF middleware disabled in test environment for simplified testing while maintaining security in dev/prod
+- **04-04**: Doctor-initiated cancellations bypass 1-hour time restriction via by_patient=False parameter
+- **04-04**: Manual refund retry deletes and recreates refund record to reset attempt count and backoff timer
+- **04-04**: Resend uses payment_received_meet_link for online, booking_confirmed_offline for offline appointments
+- **04-04**: All mutations include CSRF token from cookie via X-CSRF-Token header
+- **04-04**: TanStack Query mutations automatically invalidate related queries for UI refresh
 
 ### Pending Todos
 
@@ -139,14 +145,14 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Phase 4 Progress**: Dashboard foundation complete with calendar UI. Plan 04-01 created REST API with 4 authenticated endpoints. Plan 04-02 set up React with Vite, TypeScript, Tailwind CSS, and API client. Plan 04-03 built day/week calendar views with appointment cards, Meet links, and status indicators. FastAPI serves React app from /dashboard. Ready for interactive features (04-04+).
+**Phase 4 Progress**: Dashboard fully functional with mutations and UI. Plan 04-01 created REST API with 4 authenticated GET endpoints. Plan 04-02 set up React with Vite, TypeScript, Tailwind CSS, and API client. Plan 04-03 built day/week calendar views with appointment cards, Meet links, and status indicators. Plan 04-04 added CSRF-protected mutation endpoints (cancel, retry refund, resend) with React mutation hooks and RefundsList component. FastAPI serves React app from /dashboard. Ready for remaining phase 4 plans (settings, search/filters).
 
 **Cron Job Setup Recommended**: Plan 03-05 created scripts/run_reconciliation.py for nightly data integrity checks. Schedule with crontab: `0 2 * * * cd /app && uv run python scripts/run_reconciliation.py` to run at 2 AM daily. Handles calendar drift detection, failed operation retries, and orphaned event cleanup.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-03-PLAN.md (Calendar Views & Appointment Display)
+Stopped at: Completed 04-04-PLAN.md (Doctor Actions & Mutations)
 Resume file: None
 
 **Phase 4 (Dashboard & Management) In Progress** - 3 of 6 plans executed: Dashboard REST API (04-01), React frontend setup (04-02), and calendar views (04-03). Calendar UI displays appointments in day/week views with patient details, Meet links, and status indicators. Next: Interactive features (04-04), appointment history (04-05), and failed refunds (04-06).
