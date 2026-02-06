@@ -11,26 +11,26 @@
 - [ ] **AUTH-03**: System supports single doctor account only
 
 ### WhatsApp Bot (Patient Interface)
-- [ ] **BOT-01**: Bot responds to patient messages 24/7
-- [ ] **BOT-02**: Patient selects language on first interaction (English/Telugu/Hindi)
-- [ ] **BOT-03**: Language preference stored per phone number
-- [ ] **BOT-04**: All bot interactions use buttons only (no free text parsing)
-- [ ] **BOT-05**: Main menu displays: Book Appointment, View Appointment, Cancel Appointment, Contact Clinic
-- [ ] **BOT-06**: Bot messages display in patient's selected language
-- [ ] **BOT-07**: Bot handles invalid/expired button clicks gracefully
-- [ ] **BOT-08**: Bot provides "Session expired, restart booking" message
-- [ ] **BOT-09**: Bot prevents multiple parallel bookings from same phone number
+- [x] **BOT-01**: Bot responds to patient messages 24/7
+- [x] **BOT-02**: Patient selects language on first interaction (English/Telugu/Hindi)
+- [x] **BOT-03**: Language preference stored per phone number
+- [x] **BOT-04**: All bot interactions use buttons only (no free text parsing)
+- [x] **BOT-05**: Main menu displays: Book Appointment, View Appointment, Cancel Appointment, Contact Clinic
+- [x] **BOT-06**: Bot messages display in patient's selected language
+- [x] **BOT-07**: Bot handles invalid/expired button clicks gracefully
+- [x] **BOT-08**: Bot provides "Session expired, restart booking" message
+- [x] **BOT-09**: Bot prevents multiple parallel bookings from same phone number
 
 ### Appointment Booking
-- [ ] **BOOK-01**: Patient selects consultation type (Online or Offline)
-- [ ] **BOOK-02**: Patient selects appointment date from available dates
-- [ ] **BOOK-03**: Patient sees only available 15-minute slots for selected date
-- [ ] **BOOK-04**: Patient enters name, age, and gender
-- [ ] **BOOK-05**: Selected slot is soft-locked for 10-15 minutes during booking
-- [ ] **BOOK-06**: System prevents overbooking (max 50 appointments/day)
-- [ ] **BOOK-07**: Slots only available during doctor's configured working hours
-- [ ] **BOOK-08**: Same-day booking is allowed if slots available
-- [ ] **BOOK-09**: Patient receives confirmation message after successful booking
+- [x] **BOOK-01**: Patient selects consultation type (Online or Offline)
+- [x] **BOOK-02**: Patient selects appointment date from available dates
+- [x] **BOOK-03**: Patient sees only available 15-minute slots for selected date
+- [x] **BOOK-04**: Patient enters name, age, and gender
+- [x] **BOOK-05**: Selected slot is soft-locked for 10-15 minutes during booking
+- [x] **BOOK-06**: System prevents overbooking (max 50 appointments/day)
+- [x] **BOOK-07**: Slots only available during doctor's configured working hours
+- [x] **BOOK-08**: Same-day booking is allowed if slots available
+- [x] **BOOK-09**: Patient receives confirmation message after successful booking
 
 ### Payment & Online Consultations
 - [ ] **PAY-01**: Online consultation requires ₹500 payment via Razorpay
@@ -111,8 +111,8 @@
 - [ ] **TIME-05**: Appointments cannot span across calendar days
 
 ### Failure Handling - WhatsApp
-- [ ] **FAIL-01**: If WhatsApp message delivery fails, system retries with backoff
-- [ ] **FAIL-02**: Message send failures are logged but do not block booking
+- [x] **FAIL-01**: If WhatsApp message delivery fails, system retries with backoff
+- [x] **FAIL-02**: Message send failures are logged but do not block booking
 
 ### Failure Handling - Payments
 - [ ] **FAIL-03**: If payment succeeds but calendar creation fails, system retries calendar sync
@@ -223,26 +223,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-03 | Phase 1 | Complete |
 | OPS-04 | Phase 1 | Complete |
 | OPS-05 | Phase 1 | Complete |
-| BOT-01 | Phase 2 | Pending |
-| BOT-02 | Phase 2 | Pending |
-| BOT-03 | Phase 2 | Pending |
-| BOT-04 | Phase 2 | Pending |
-| BOT-05 | Phase 2 | Pending |
-| BOT-06 | Phase 2 | Pending |
-| BOT-07 | Phase 2 | Pending |
-| BOT-08 | Phase 2 | Pending |
-| BOT-09 | Phase 2 | Pending |
-| BOOK-01 | Phase 2 | Pending |
-| BOOK-02 | Phase 2 | Pending |
-| BOOK-03 | Phase 2 | Pending |
-| BOOK-04 | Phase 2 | Pending |
-| BOOK-05 | Phase 2 | Pending |
-| BOOK-06 | Phase 2 | Pending |
-| BOOK-07 | Phase 2 | Pending |
-| BOOK-08 | Phase 2 | Pending |
-| BOOK-09 | Phase 2 | Pending |
-| FAIL-01 | Phase 2 | Pending |
-| FAIL-02 | Phase 2 | Pending |
+| BOT-01 | Phase 2 | Complete |
+| BOT-02 | Phase 2 | Complete |
+| BOT-03 | Phase 2 | Complete |
+| BOT-04 | Phase 2 | Complete |
+| BOT-05 | Phase 2 | Complete |
+| BOT-06 | Phase 2 | Complete |
+| BOT-07 | Phase 2 | Complete |
+| BOT-08 | Phase 2 | Complete |
+| BOT-09 | Phase 2 | Complete |
+| BOOK-01 | Phase 2 | Complete |
+| BOOK-02 | Phase 2 | Complete |
+| BOOK-03 | Phase 2 | Complete |
+| BOOK-04 | Phase 2 | Complete |
+| BOOK-05 | Phase 2 | Complete |
+| BOOK-06 | Phase 2 | Complete |
+| BOOK-07 | Phase 2 | Complete |
+| BOOK-08 | Phase 2 | Complete |
+| BOOK-09 | Phase 2 | Complete |
+| FAIL-01 | Phase 2 | Complete |
+| FAIL-02 | Phase 2 | Complete |
 | PAY-01 | Phase 3 | Pending |
 | PAY-02 | Phase 3 | Pending |
 | PAY-03 | Phase 3 | Pending |

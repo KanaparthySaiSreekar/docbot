@@ -13,7 +13,7 @@ DocBot transforms a single-doctor practice into a fully automated WhatsApp-based
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Infrastructure, authentication, and deployment setup
-- [ ] **Phase 2: WhatsApp Bot & Booking Flow** - Patient-facing bot with booking capability
+- [x] **Phase 2: WhatsApp Bot & Booking Flow** - Patient-facing bot with booking capability
 - [ ] **Phase 3: Payments & Calendar Integration** - Complete online/offline booking with Google Calendar
 - [ ] **Phase 4: Dashboard & Management** - Doctor web interface and appointment operations
 - [ ] **Phase 5: Automation & Launch** - Notifications, prescriptions, testing, and production readiness
@@ -56,9 +56,9 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md -- WhatsApp Cloud API client, webhook endpoint, message retry
-- [ ] 02-02-PLAN.md -- Patient storage, conversation state, language/i18n system
-- [ ] 02-03-PLAN.md -- Slot availability engine and booking service (TDD)
-- [ ] 02-04-PLAN.md -- Bot conversation handler wiring all subsystems together
+- [x] 02-02-PLAN.md -- Patient storage, conversation state, language/i18n system
+- [x] 02-03-PLAN.md -- Slot availability engine and booking service (TDD)
+- [x] 02-04-PLAN.md -- Bot conversation handler wiring all subsystems together
 
 ### Phase 3: Payments & Calendar Integration
 **Goal**: Complete booking system with Razorpay payments, refunds, and Google Calendar synchronization with reconciliation
@@ -118,7 +118,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete | 2026-02-05 |
-| 2. WhatsApp Bot & Booking Flow | 1/4 | In progress | - |
+| 2. WhatsApp Bot & Booking Flow | 4/4 | Complete | 2026-02-06 |
 | 3. Payments & Calendar Integration | 0/TBD | Not started | - |
 | 4. Dashboard & Management | 0/TBD | Not started | - |
 | 5. Automation & Launch | 0/TBD | Not started | - |

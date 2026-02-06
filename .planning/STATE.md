@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Fully automated appointment booking and management that eliminates manual coordination - patients can book, pay, cancel, and receive prescriptions entirely through WhatsApp while the doctor focuses solely on consultations through a clean web interface.
-**Current focus:** Phase 2 - WhatsApp Bot & Booking Flow
+**Current focus:** Phase 3 - Payments & Calendar Integration
 
 ## Current Position
 
 Phase: 2 of 5 (WhatsApp Bot & Booking Flow)
-Plan: 2 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-06 — Completed 02-02-PLAN.md (Patient Data Layer)
+Plan: 4 of 4 in current phase
+Status: Phase verified and complete
+Last activity: 2026-02-06 — Phase 2 verified (5/5 must-haves) with complete booking flow
 
-Progress: [██████░░░░] 2 of 4 Phase 2 plans complete
+Progress: [██████████] 100% of Phase 2 (WhatsApp Bot & Booking Flow) ✓
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 9 min
-- Total execution time: 1.2 hours
+- Total plans completed: 9
+- Average duration: 8 min
+- Total execution time: 1.3 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
-| 02-whatsapp-bot-booking-flow | 2/4 | 15 min | 8 min |
+| 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (6min), 01-05 (7min), 02-01 (5min), 02-02 (10min), 02-03 (5min)
-- Trend: Consistent velocity maintained (avg 7 min for recent plans)
+- Last 5 plans: 01-05 (7min), 02-01 (5min), 02-02 (10min), 02-03 (5min), 02-04 (7min)
+- Trend: Maintaining high velocity (avg 7 min per plan in Phase 2)
 
 *Updated after each plan completion*
 
@@ -80,6 +80,10 @@ Recent decisions affecting current work:
 - **02-03**: Expired locks automatically cleaned up before acquiring new locks (no separate cleanup job needed)
 - **02-03**: Appointment creation releases soft-lock (transition from reservation to booking)
 - **02-03**: Double-booking prevented at both application (ValueError) and database level (UNIQUE constraint)
+- **02-04**: Bot handler uses state-based routing with dedicated handler functions per conversation state
+- **02-04**: Integration tests mock WhatsApp client but use real test database for state assertions
+- **02-04**: Gender values stored in English, converted to lowercase for i18n lookup (gender_male, gender_female, gender_other)
+- **02-04**: Contact clinic and cancel appointment menu items are placeholders for Phase 3+ (show "Coming soon")
 
 ### Pending Todos
 
@@ -89,10 +93,14 @@ None yet.
 
 **User Setup Required**: Plan 02-01 introduced WhatsApp Cloud API integration requiring manual Meta Business Suite configuration (see 02-USER-SETUP.md). Must be completed before WhatsApp integration will function in production.
 
+**Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
+
+**Ready for Phase 3**: Complete patient-facing booking flow operational. Bot responds 24/7, handles language selection, type/date/slot selection with soft-locking, detail entry, and confirmation. Appointments created with correct initial status (PENDING_PAYMENT for online, CONFIRMED for offline). Payment integration and Google Calendar sync next.
+
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-02-PLAN.md (Patient Data Layer)
+Stopped at: Phase 2 verified and complete (5/5 must-haves, all plans executed)
 Resume file: None
 
-**Phase 2 (WhatsApp Bot & Booking Flow) In Progress** - Patient data layer, conversation state, and i18n complete (2/4 plans)
+**Phase 2 (WhatsApp Bot & Booking Flow) Complete ✓** - Verified and ready for Phase 3 (Payments & Calendar Integration)
