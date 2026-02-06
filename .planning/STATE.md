@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 5 of 5 (Automation & Launch)
-Plan: 2 of 6 in current phase
+Plan: 5 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-07 — Completed 05-02-PLAN.md (Prescription PDF Generation)
+Last activity: 2026-02-07 — Completed 05-05-PLAN.md (Emergency Mode Controls)
 
-Progress: [█████████████████████░░] 95% (21/22 plans complete)
+Progress: [█████████████████████░] 95% (21/22 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 21
-- Average duration: 8.6 min
-- Total execution time: 3.09 hours
+- Average duration: 8.8 min
+- Total execution time: 3.1 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [█████████████████████░░
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
 | 04-dashboard-and-management | 6/6 | 51 min | 8.5 min |
-| 05-automation-and-launch | 2/6 | 14 min | 7 min |
+| 05-automation-and-launch | 1/6 | 12 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-03 (8min), 04-04 (18min), 04-06 (3min), 04-05 (8min), 05-02 (14min)
-- Trend: Phase 5 in progress - prescription PDF generation complete with cross-platform xhtml2pdf library
+- Last 5 plans: 04-04 (18min), 04-06 (3min), 04-05 (8min), 05-02 (14min), 05-05 (12min)
+- Trend: Phase 5 in progress - emergency controls and prescription systems complete
 
 *Updated after each plan completion*
 
@@ -142,6 +142,10 @@ Recent decisions affecting current work:
 - **05-02**: Prescription immutability enforced via UNIQUE constraint on appointment_id (one prescription per appointment)
 - **05-02**: PDFs stored in prescriptions/ directory separate from database for efficient file serving
 - **05-02**: Template includes "Generated electronically" notice for medical documentation standards compliance
+- **05-05**: Emergency flags stored in config with runtime toggle for incident response without deployment
+- **05-05**: Booking disabled returns to main menu with maintenance message, existing features still work
+- **05-05**: Read-only mode returns 403 on all mutations with clear error messaging
+- **05-05**: Emergency banner polls status every 30 seconds for near real-time visibility
 
 ### Pending Todos
 
@@ -161,10 +165,12 @@ None yet.
 
 **Cron Job Setup Recommended**: Plan 03-05 created scripts/run_reconciliation.py for nightly data integrity checks. Schedule with crontab: `0 2 * * * cd /app && uv run python scripts/run_reconciliation.py` to run at 2 AM daily. Handles calendar drift detection, failed operation retries, and orphaned event cleanup.
 
+**Emergency Controls Available**: Plan 05-05 created emergency mode system for incident response. Doctor can disable new bookings via WhatsApp while keeping existing appointments/reminders working. Doctor can enable read-only dashboard mode to prevent accidental changes during investigations. Emergency status visible via red banner in dashboard. Toggle via POST /api/emergency endpoint or config file.
+
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 05-02-PLAN.md (Prescription PDF Generation)
+Stopped at: Completed 05-05-PLAN.md (Emergency Mode Controls)
 Resume file: None
 
-**Phase 5 (Automation & Launch) In Progress** - Plan 05-02 complete: Professional prescription PDF generation with doctor signature, credentials, and secure download tokens using xhtml2pdf and Jinja2 templates. Prescription immutability enforced (one per appointment). 11 tests passing. Ready for 05-03 (WhatsApp Prescription Delivery).
+**Phase 5 (Automation & Launch) In Progress** - Plan 05-05 (Emergency Mode Controls) completed successfully. Emergency mode configuration system provides safety mechanisms for incident response: booking disabled toggle for WhatsApp, read-only dashboard mode, emergency status API endpoints, and visual emergency banner. Doctor can toggle emergency flags via authenticated API or config file. Existing appointments and reminders unaffected by emergency mode. One plan remaining: 05-06 (Production Deployment Guide).
