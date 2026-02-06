@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import pytest_asyncio
 
 from docbot.main import app
 
@@ -317,3 +318,88 @@ async def test_webhook_no_messages_returns_200(test_client):
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+@pytest.mark.asyncio
+async def test_razorpay_webhook_payment_captured(test_client, test_db):
+    """Test Razorpay payment.captured webhook processing."""
+    # Setup: Create appointment and payment
+    await test_db.execute(
+        """INSERT INTO appointments
+           (id, patient_phone, patient_name, patient_age, patient_gender,
+            consultation_type, appointment_date, slot_time, status,
+            language, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("appt-pay-test", "+919876543210", "Payment Test", 30, "Male",
+         "online", "2026-02-10", "10:00", "PENDING_PAYMENT",
+         "en", "2026-02-06T10:00:00Z", "2026-02-06T10:00:00Z")
+    )
+    await test_db.execute(
+        """INSERT INTO payments
+           (id, appointment_id, razorpay_payment_link_id, amount_paise, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        ("pay-123", "appt-pay-test", "plink_test123", 50000, "PENDING", "2026-02-06T10:00:00Z")
+    )
+    await test_db.commit()
+
+    # Create mock for get_db that yields test_db
+    async def mock_get_db():
+        yield test_db
+
+    # Mock signature verification and calendar
+    with patch("docbot.webhook.get_db", mock_get_db), \
+         patch("docbot.payment_service.verify_webhook_signature", return_value=True), \
+         patch("docbot.calendar_service.google_calendar_client") as mock_cal, \
+         patch("docbot.webhook.send_text", new_callable=AsyncMock) as mock_send:
+
+        mock_cal.create_event = AsyncMock(return_value={
+            "event_id": "gcal-123",
+            "meet_link": "https://meet.google.com/test"
+        })
+
+        webhook_payload = {
+            "event": "payment.captured",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_razorpay123",
+                        "payment_link_id": "plink_test123",
+                        "amount": 50000,
+                        "status": "captured"
+                    }
+                }
+            }
+        }
+
+        response = test_client.post(
+            "/webhook/razorpay",
+            json=webhook_payload,
+            headers={"X-Razorpay-Signature": "valid_signature"}
+        )
+
+        assert response.status_code == 200
+
+        # Verify appointment status updated
+        cursor = await test_db.execute(
+            "SELECT status FROM appointments WHERE id = ?",
+            ("appt-pay-test",)
+        )
+        row = await cursor.fetchone()
+        assert row[0] == "CONFIRMED"
+
+        # Verify WhatsApp message sent
+        mock_send.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_razorpay_webhook_invalid_signature(test_client):
+    """Test webhook rejection with invalid signature."""
+    with patch("docbot.payment_service.verify_webhook_signature", return_value=False):
+        response = test_client.post(
+            "/webhook/razorpay",
+            json={"event": "payment.captured", "payload": {}},
+            headers={"X-Razorpay-Signature": "invalid"}
+        )
+
+        # Should still return 200 to prevent retries
+        assert response.status_code == 200
