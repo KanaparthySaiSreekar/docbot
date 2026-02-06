@@ -520,9 +520,9 @@ async def _handle_enter_gender(
         return
 
     gender_map = {
-        "gender_male": "male",
-        "gender_female": "female",
-        "gender_other": "other",
+        "gender_male": "Male",
+        "gender_female": "Female",
+        "gender_other": "Other",
     }
 
     if button_id not in gender_map:
@@ -564,7 +564,7 @@ async def _send_booking_confirmation(
     type_display = i18n.get_message(f"type_{consultation_type}", language)
     date_display = format_date_for_display(date_str)
     time_display = format_time_for_display(slot_time)
-    gender_display = i18n.get_message(f"gender_{gender}", language)
+    gender_display = i18n.get_message(f"gender_{gender.lower()}", language)
 
     # Get fee
     settings = get_settings()

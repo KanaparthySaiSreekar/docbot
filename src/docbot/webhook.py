@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import PlainTextResponse
 
+from docbot import bot_handler
 from docbot.config import get_settings
 from docbot.database import get_db
 from docbot.idempotency import check_idempotency, record_event
@@ -125,7 +126,7 @@ async def receive_message(request: Request) -> dict[str, str]:
                     parsed_message["button_id"] = list_reply.get("id")
                     parsed_message["button_title"] = list_reply.get("title")
 
-            # Log the parsed message (bot handler will be wired in Plan 02-04)
+            # Log the parsed message
             logger.info(
                 "WhatsApp message received",
                 extra={
@@ -138,6 +139,17 @@ async def receive_message(request: Request) -> dict[str, str]:
 
             # Record the message as processed (idempotency)
             await record_event(db, message_id, "whatsapp", parsed_message)
+
+            # Handle the message through bot handler
+            try:
+                await bot_handler.handle_message(parsed_message)
+            except Exception as handler_error:
+                # Log but don't raise - always return 200 to Meta
+                logger.error(
+                    "Bot handler error",
+                    extra={"error": str(handler_error), "message_id": message_id},
+                    exc_info=True
+                )
 
             return {"status": "ok"}
 
