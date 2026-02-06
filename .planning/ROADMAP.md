@@ -71,10 +71,14 @@ Plans:
   4. Patient can cancel appointment >1 hour before slot and receives automatic refund with retry on failure
   5. Database is authoritative; Google Calendar synced as projection with nightly reconciliation
   6. All booking operations are transactional and leverage idempotency framework from Phase 1
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 03-01: TBD during phase planning
+- [ ] 03-01-PLAN.md -- Razorpay client and payment service with webhook processing (TDD)
+- [ ] 03-02-PLAN.md -- Google Calendar OAuth2 client with Meet link generation
+- [ ] 03-03-PLAN.md -- Wire payment and calendar services into booking flow
+- [ ] 03-04-PLAN.md -- Patient cancellation with automatic refunds (TDD)
+- [ ] 03-05-PLAN.md -- Reconciliation job and refund webhook completion
 
 ### Phase 4: Dashboard & Management
 **Goal**: Doctor has full web interface to view, manage, and configure appointments with operational visibility
@@ -119,6 +123,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete | 2026-02-05 |
 | 2. WhatsApp Bot & Booking Flow | 4/4 | Complete | 2026-02-06 |
-| 3. Payments & Calendar Integration | 0/TBD | Not started | - |
+| 3. Payments & Calendar Integration | 0/5 | Not started | - |
 | 4. Dashboard & Management | 0/TBD | Not started | - |
 | 5. Automation & Launch | 0/TBD | Not started | - |
