@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 5 (WhatsApp Bot & Booking Flow)
-Plan: 1 of 5 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 — Completed 02-01-PLAN.md
+Last activity: 2026-02-06 — Completed 02-03-PLAN.md
 
-Progress: [██░░░░░░░░] 1 of 5 Phase 2 plans complete
+Progress: [██████░░░░] 2 of 4 Phase 2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 10 min
-- Total execution time: 1.0 hours
+- Total plans completed: 7
+- Average duration: 9 min
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
-| 02-whatsapp-bot-booking-flow | 1/5 | 5 min | 5 min |
+| 02-whatsapp-bot-booking-flow | 2/4 | 10 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (17min), 01-03 (13min), 01-04 (6min), 01-05 (7min), 02-01 (5min)
-- Trend: High velocity maintained (5 min for WhatsApp integration plan)
+- Last 5 plans: 01-03 (13min), 01-04 (6min), 01-05 (7min), 02-01 (5min), 02-03 (5min)
+- Trend: Exceptional velocity maintained (5 min average for Phase 2 plans)
 
 *Updated after each plan completion*
 
@@ -69,6 +69,12 @@ Recent decisions affecting current work:
 - **02-01**: Failed sends return None and log alerts without raising exceptions
 - **02-01**: Webhook always returns 200 to Meta to prevent retry storms
 - **02-01**: Message deduplication via idempotency framework using message_id
+- **02-03**: TDD approach for business logic ensures slot generation and booking correctness before bot integration
+- **02-03**: Break period is half-open interval (break_start excluded, break_end included)
+- **02-03**: Same-day filtering uses IST time comparison for user-facing correctness
+- **02-03**: Expired locks automatically cleaned up before acquiring new locks (no separate cleanup job needed)
+- **02-03**: Appointment creation releases soft-lock (transition from reservation to booking)
+- **02-03**: Double-booking prevented at both application (ValueError) and database level (UNIQUE constraint)
 
 ### Pending Todos
 
@@ -81,7 +87,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-01-PLAN.md (WhatsApp Integration)
+Stopped at: Completed 02-03-PLAN.md (Slot Availability and Booking Service)
 Resume file: None
 
-**Phase 2 (WhatsApp Bot & Booking Flow) In Progress** - WhatsApp messaging foundation complete (1/5 plans)
+**Phase 2 (WhatsApp Bot & Booking Flow) In Progress** - Slot and booking services complete, ready for bot flow (2/4 plans)
