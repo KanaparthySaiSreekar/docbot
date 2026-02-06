@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 4 of 5 (Dashboard & Management)
-Plan: 6 of 6 in current phase
-Status: Phase complete
-Last activity: 2026-02-06 — Completed 04-05-PLAN.md (Settings & Schedule Configuration)
+Phase: 5 of 5 (Automation & Launch)
+Plan: 2 of 6 in current phase
+Status: In progress
+Last activity: 2026-02-07 — Completed 05-02-PLAN.md (Prescription PDF Generation)
 
-Progress: [█████████████████████] 100% (20/20 plans complete)
+Progress: [█████████████████████░░] 95% (21/22 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
-- Average duration: 8.5 min
-- Total execution time: 2.85 hours
+- Total plans completed: 21
+- Average duration: 8.6 min
+- Total execution time: 3.09 hours
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [█████████████████████] 100%
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
 | 04-dashboard-and-management | 6/6 | 51 min | 8.5 min |
+| 05-automation-and-launch | 2/6 | 14 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (7min), 04-03 (8min), 04-04 (18min), 04-06 (3min), 04-05 (8min)
-- Trend: Phase 4 complete! All dashboard features implemented efficiently
+- Last 5 plans: 04-03 (8min), 04-04 (18min), 04-06 (3min), 04-05 (8min), 05-02 (14min)
+- Trend: Phase 5 in progress - prescription PDF generation complete with cross-platform xhtml2pdf library
 
 *Updated after each plan completion*
 
@@ -136,6 +137,11 @@ Recent decisions affecting current work:
 - **04-06**: History page shows read-only view without action buttons for immutability
 - **04-06**: Pagination uses limit=20 with offset-based loading for browsing past appointments
 - **04-06**: Navigation tabs in App.tsx instead of routing library for simple state-based page switching
+- **05-02**: xhtml2pdf chosen over WeasyPrint for cross-platform PDF generation (no system library dependencies)
+- **05-02**: Prescription secure tokens expire after 72 hours with regeneration capability for extending access
+- **05-02**: Prescription immutability enforced via UNIQUE constraint on appointment_id (one prescription per appointment)
+- **05-02**: PDFs stored in prescriptions/ directory separate from database for efficient file serving
+- **05-02**: Template includes "Generated electronically" notice for medical documentation standards compliance
 
 ### Pending Todos
 
@@ -157,8 +163,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Stopped at: Completed 04-05-PLAN.md (Settings & Schedule Configuration)
+Last session: 2026-02-07
+Stopped at: Completed 05-02-PLAN.md (Prescription PDF Generation)
 Resume file: None
 
-**Phase 4 (Dashboard & Management) Complete** - All 6 plans executed successfully. Dashboard provides comprehensive appointment management with navigation tabs (Calendar/History/Settings), day/week calendar views with appointment cards, CSRF-protected mutations (cancel, retry refund, resend), failed refunds monitoring panel, paginated appointment history, and settings page for schedule configuration. Doctor can manage working hours, view appointments, review history, and take actions all through the web interface. All 146 tests passing. Ready for Phase 5 deployment.
+**Phase 5 (Automation & Launch) In Progress** - Plan 05-02 complete: Professional prescription PDF generation with doctor signature, credentials, and secure download tokens using xhtml2pdf and Jinja2 templates. Prescription immutability enforced (one per appointment). 11 tests passing. Ready for 05-03 (WhatsApp Prescription Delivery).
