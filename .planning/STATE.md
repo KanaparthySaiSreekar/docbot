@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 5 (Dashboard & Management)
-Plan: 4 of 6 in current phase
-Status: In progress
-Last activity: 2026-02-06 — Completed 04-04-PLAN.md (Doctor Actions & Mutations)
+Plan: 6 of 6 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 04-06-PLAN.md (Appointment History)
 
-Progress: [█████████████████░] 90% (18/20 plans complete)
+Progress: [█████████████████████] 95% (19/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 9 min
-- Total execution time: 2.8 hours
+- Total execution time: 2.9 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████████████████░] 90% (18/20 pl
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
-| 04-dashboard-and-management | 4/6 | 40 min | 10 min |
+| 04-dashboard-and-management | 5/6 | 43 min | 9 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-05 (11min), 04-01 (7min), 04-02 (7min), 04-03 (8min), 04-04 (18min)
-- Trend: Phase 4 showing good progress, latest plan took longer due to CSRF integration complexity
+- Last 5 plans: 04-01 (7min), 04-02 (7min), 04-03 (8min), 04-04 (18min), 04-06 (3min)
+- Trend: Phase 4 nearly complete, history page was simple addition leveraging existing infrastructure
 
 *Updated after each plan completion*
 
@@ -130,6 +130,9 @@ Recent decisions affecting current work:
 - **04-04**: Resend uses payment_received_meet_link for online, booking_confirmed_offline for offline appointments
 - **04-04**: All mutations include CSRF token from cookie via X-CSRF-Token header
 - **04-04**: TanStack Query mutations automatically invalidate related queries for UI refresh
+- **04-06**: History page shows read-only view without action buttons for immutability
+- **04-06**: Pagination uses limit=20 with offset-based loading for browsing past appointments
+- **04-06**: Navigation tabs in App.tsx instead of routing library for simple state-based page switching
 
 ### Pending Todos
 
@@ -145,14 +148,14 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Phase 4 Progress**: Dashboard fully functional with mutations and UI. Plan 04-01 created REST API with 4 authenticated GET endpoints. Plan 04-02 set up React with Vite, TypeScript, Tailwind CSS, and API client. Plan 04-03 built day/week calendar views with appointment cards, Meet links, and status indicators. Plan 04-04 added CSRF-protected mutation endpoints (cancel, retry refund, resend) with React mutation hooks and RefundsList component. FastAPI serves React app from /dashboard. Ready for remaining phase 4 plans (settings, search/filters).
+**Phase 4 Nearly Complete**: Dashboard fully functional with all core features. Plan 04-01 created REST API with authenticated endpoints. Plan 04-02 set up React with Vite, TypeScript, Tailwind CSS. Plan 04-03 built day/week calendar views with appointment cards. Plan 04-04 added CSRF-protected mutations (cancel, retry refund, resend) with RefundsList component. Plan 04-06 added appointment history with pagination and navigation tabs. FastAPI serves React app from /dashboard. One plan remaining (04-05) for settings management.
 
 **Cron Job Setup Recommended**: Plan 03-05 created scripts/run_reconciliation.py for nightly data integrity checks. Schedule with crontab: `0 2 * * * cd /app && uv run python scripts/run_reconciliation.py` to run at 2 AM daily. Handles calendar drift detection, failed operation retries, and orphaned event cleanup.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-04-PLAN.md (Doctor Actions & Mutations)
+Stopped at: Completed 04-06-PLAN.md (Appointment History)
 Resume file: None
 
-**Phase 4 (Dashboard & Management) In Progress** - 3 of 6 plans executed: Dashboard REST API (04-01), React frontend setup (04-02), and calendar views (04-03). Calendar UI displays appointments in day/week views with patient details, Meet links, and status indicators. Next: Interactive features (04-04), appointment history (04-05), and failed refunds (04-06).
+**Phase 4 (Dashboard & Management) Nearly Complete** - 5 of 6 plans executed: Dashboard REST API (04-01), React frontend setup (04-02), calendar views (04-03), doctor actions/mutations (04-04), and appointment history (04-06). Dashboard has navigation tabs for Dashboard/History pages, day/week calendar views with appointment cards, CSRF-protected mutations (cancel, retry refund, resend), failed refunds monitoring panel, and paginated appointment history. Remaining: settings management (04-05).
