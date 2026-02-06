@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 5 of 5 (Automation & Launch)
-Plan: 3 of 6 in current phase
+Plan: 4 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-07 — Completed 05-03-PLAN.md (Prescription Dashboard UI)
+Last activity: 2026-02-07 — Completed 05-04-PLAN.md (Prescription WhatsApp Delivery)
 
-Progress: [█████████████████████░] 95% (21/22 plans complete)
+Progress: [█████████████████████░] 100% (22/22 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 8.8 min
-- Total execution time: 3.1 hours
+- Total plans completed: 22
+- Average duration: 9.0 min
+- Total execution time: 3.3 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [█████████████████████░] 9
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
 | 03-payments-calendar-integration | 5/5 | 49 min | 10 min |
 | 04-dashboard-and-management | 6/6 | 51 min | 8.5 min |
-| 05-automation-and-launch | 3/6 | 38 min | 12.7 min |
+| 05-automation-and-launch | 4/6 | 55 min | 13.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-06 (3min), 04-05 (8min), 05-02 (14min), 05-05 (12min), 05-03 (12min)
-- Trend: Phase 5 in progress - prescription system complete with full dashboard UI
+- Last 5 plans: 04-05 (8min), 05-02 (14min), 05-05 (12min), 05-03 (12min), 05-04 (17min)
+- Trend: Phase 5 in progress - prescription delivery system complete with WhatsApp integration
 
 *Updated after each plan completion*
 
@@ -152,6 +152,10 @@ Recent decisions affecting current work:
 - **05-03**: Download URLs generated with base_url from config for portability
 - **05-03**: Prescription creation triggers automatic WhatsApp delivery
 - **05-03**: Public download endpoint uses token authentication (no login required)
+- **05-04**: Public download endpoint requires no authentication - security via token only
+- **05-04**: Token regenerated before WhatsApp send for fresh 72-hour window
+- **05-04**: No PII logged in download endpoint (prescription_id only)
+- **05-04**: 404 returned for invalid/expired tokens (not 403 to avoid enumeration)
 - **05-05**: Emergency flags stored in config with runtime toggle for incident response without deployment
 - **05-05**: Booking disabled returns to main menu with maintenance message, existing features still work
 - **05-05**: Read-only mode returns 403 on all mutations with clear error messaging
@@ -177,12 +181,12 @@ None yet.
 
 **Emergency Controls Available**: Plan 05-05 created emergency mode system for incident response. Doctor can disable new bookings via WhatsApp while keeping existing appointments/reminders working. Doctor can enable read-only dashboard mode to prevent accidental changes during investigations. Emergency status visible via red banner in dashboard. Toggle via POST /api/emergency endpoint or config file.
 
-**Prescription System Complete**: Plan 05-02 built prescription PDF generation with xhtml2pdf. Plan 05-03 added full prescription dashboard UI with patient selection, multi-medicine form, and automatic WhatsApp delivery. Doctor selects completed appointment, enters medicines/dosage/instructions, generates PDF, and system sends secure download link to patient via WhatsApp. Prescription history shows delivery status and download access. Public token-based endpoint allows patients to download PDFs without login (72-hour expiry).
+**Prescription System Complete**: Plan 05-02 built prescription PDF generation with xhtml2pdf. Plan 05-03 added full prescription dashboard UI with patient selection, multi-medicine form, and automatic WhatsApp delivery. Plan 05-04 implemented secure prescription delivery via WhatsApp with time-limited download URLs. Doctor selects completed appointment, enters medicines/dosage/instructions, generates PDF, and system automatically sends secure download link to patient via WhatsApp. Token regenerates on each send for fresh 72-hour access window. Public download endpoint uses token authentication (no login required) with PII protection in logs. Prescription history shows delivery status and download access.
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 05-03-PLAN.md (Prescription Dashboard UI)
+Stopped at: Completed 05-04-PLAN.md (Prescription WhatsApp Delivery)
 Resume file: None
 
-**Phase 5 (Automation & Launch) In Progress** - Plan 05-03 (Prescription Dashboard UI) completed successfully. Full prescription workflow implemented: doctor selects patient from completed appointments, enters medicines in dynamic form, generates PDF with xhtml2pdf, and system automatically delivers secure download link via WhatsApp. Prescription history table shows delivery status and download access. Public token-based download endpoint allows patients to access PDFs without login. Three plans remaining in Phase 5.
+**Phase 5 (Automation & Launch) In Progress** - Plan 05-04 (Prescription WhatsApp Delivery) completed successfully. Secure prescription delivery system implemented with WhatsApp integration. Public download endpoint (/prescriptions/download/{token}) uses token-based authentication with 72-hour expiry. send_prescription_to_patient() function regenerates token before each WhatsApp send for fresh access window. Multilingual messages support English/Telugu/Hindi. PII protection implemented with prescription_id-only logging (no patient names/phones). 12 comprehensive tests verify token validation, expiry, delivery, and multilingual support. Two plans remaining in Phase 5.
