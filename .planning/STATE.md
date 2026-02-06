@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 5 (Payments & Calendar Integration)
-Plan: 2 of 2 in current phase
+Plan: 3 of 3 in current phase
 Status: Phase complete
-Last activity: 2026-02-06 — Completed 03-02-PLAN.md (Google Calendar integration)
+Last activity: 2026-02-06 — Completed 03-03-PLAN.md (Payment & Calendar Integration wiring)
 
 Progress: [████████████] 100% of Phase 3 (Payments & Calendar Integration) ✓
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 8 min
-- Total execution time: 1.7 hours
+- Total execution time: 1.8 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████████] 100% of Phase 3 (Payments & Cal
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
-| 03-payments-calendar-integration | 2/2 | 23 min | 12 min |
+| 03-payments-calendar-integration | 3/3 | 31 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (10min), 02-03 (5min), 02-04 (7min), 03-01 (10min), 03-02 (13min)
-- Trend: Steady velocity, TDD plans with external API integration averaging 12 min
+- Last 5 plans: 02-03 (5min), 02-04 (7min), 03-01 (10min), 03-02 (13min), 03-03 (8min)
+- Trend: Consistent velocity, integration plans average 10 min
 
 *Updated after each plan completion*
 
@@ -94,6 +94,10 @@ Recent decisions affecting current work:
 - **03-02**: Meet link generation only for online consultations via conferenceData
 - **03-02**: Event deletion returns success if event already deleted (404 = success)
 - **03-02**: Calendar service is idempotent - skips creation if event already exists
+- **03-03**: Webhook always returns 200 to prevent Razorpay retry storms
+- **03-03**: Calendar creation is non-blocking - logs alert on failure without blocking payment confirmation
+- **03-03**: Online bookings send payment link immediately, calendar created after payment
+- **03-03**: Offline bookings create calendar event immediately with clinic address
 
 ### Pending Todos
 
@@ -109,12 +113,12 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Phase 4**: Phase 3 complete with payment and calendar integration. Patients can book appointments (Phase 2), pay via Razorpay (Phase 3), and appointments sync to Google Calendar with Meet links (Phase 3). Admin dashboard next for doctor-side management.
+**Ready for Phase 4**: Phase 3 complete with full end-to-end booking flows. Online flow: patient books → payment link → webhook → calendar event → Meet link. Offline flow: patient books → calendar event → clinic address. Admin dashboard next for doctor-side management.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-02-PLAN.md (Google Calendar integration)
+Stopped at: Completed 03-03-PLAN.md (Payment & Calendar Integration wiring)
 Resume file: None
 
-**Phase 3 (Payments & Calendar Integration) Complete ✓** - Both plans executed: Razorpay payment links (03-01) and Google Calendar events with Meet links (03-02)
+**Phase 3 (Payments & Calendar Integration) Complete ✓** - All 3 plans executed: Razorpay payment service (03-01), Google Calendar integration (03-02), and end-to-end booking flows (03-03)
