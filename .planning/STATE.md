@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 5 (Payments & Calendar Integration)
-Plan: 3 of 3 in current phase
+Plan: 4 of 4 in current phase
 Status: Phase complete
-Last activity: 2026-02-06 — Completed 03-03-PLAN.md (Payment & Calendar Integration wiring)
+Last activity: 2026-02-06 — Completed 03-04-PLAN.md (Cancellation & Refunds with exponential backoff retry)
 
 Progress: [████████████] 100% of Phase 3 (Payments & Calendar Integration) ✓
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 8 min
-- Total execution time: 1.8 hours
+- Total execution time: 1.9 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████████] 100% of Phase 3 (Payments & Cal
 |-------|-------|-------|----------|
 | 01-foundation | 5/5 | 55 min | 11 min |
 | 02-whatsapp-bot-booking-flow | 4/4 | 27 min | 7 min |
-| 03-payments-calendar-integration | 3/3 | 31 min | 10 min |
+| 03-payments-calendar-integration | 4/4 | 38 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (5min), 02-04 (7min), 03-01 (10min), 03-02 (13min), 03-03 (8min)
-- Trend: Consistent velocity, integration plans average 10 min
+- Last 5 plans: 02-04 (7min), 03-01 (10min), 03-02 (13min), 03-03 (8min), 03-04 (7min)
+- Trend: Consistent velocity, TDD plans 7-10 min, integration plans 8-13 min
 
 *Updated after each plan completion*
 
@@ -98,6 +98,12 @@ Recent decisions affecting current work:
 - **03-03**: Calendar creation is non-blocking - logs alert on failure without blocking payment confirmation
 - **03-03**: Online bookings send payment link immediately, calendar created after payment
 - **03-03**: Offline bookings create calendar event immediately with clinic address
+- **03-04**: Refund retry uses exponential backoff (60, 120, 240, 480, 960 seconds) to handle transient API failures
+- **03-04**: Max 5 retry attempts after which refund marked FAILED and alerted
+- **03-04**: Cancellation allowed only >1 hour before appointment to prevent abuse
+- **03-04**: Online cancellations trigger automatic refund; offline cancellations have no refund
+- **03-04**: Calendar event deletion is part of cancellation flow (cleanup)
+- **03-04**: Refund webhook processes refund.processed events for async confirmation
 
 ### Pending Todos
 
@@ -113,12 +119,14 @@ None yet.
 
 **Human Verification Recommended**: Phase 2 verification identified 6 scenarios requiring testing with actual WhatsApp account (see 02-VERIFICATION.md). All code verified to exist and be properly wired; manual testing recommended before production launch.
 
-**Ready for Phase 4**: Phase 3 complete with full end-to-end booking flows. Online flow: patient books → payment link → webhook → calendar event → Meet link. Offline flow: patient books → calendar event → clinic address. Admin dashboard next for doctor-side management.
+**Ready for Phase 4**: Phase 3 complete with full end-to-end booking and cancellation flows. Online flow: patient books → payment link → webhook → calendar event → Meet link. Offline flow: patient books → calendar event → clinic address. Cancellation flow: patient cancels → refund initiated (online only) → calendar deleted. Admin dashboard next for doctor-side management.
+
+**Background Job Needed**: Plan 03-04 introduced retry_failed_refunds() function that should be called periodically (every 1-5 minutes) to process pending refunds. Can be implemented as FastAPI background task, cron job, or Phase 5 worker.
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-03-PLAN.md (Payment & Calendar Integration wiring)
+Stopped at: Completed 03-04-PLAN.md (Cancellation & Refunds with exponential backoff retry)
 Resume file: None
 
-**Phase 3 (Payments & Calendar Integration) Complete ✓** - All 3 plans executed: Razorpay payment service (03-01), Google Calendar integration (03-02), and end-to-end booking flows (03-03)
+**Phase 3 (Payments & Calendar Integration) Complete ✓** - All 4 plans executed: Razorpay payment service (03-01), Google Calendar integration (03-02), end-to-end booking flows (03-03), and cancellation with automatic refunds (03-04)
