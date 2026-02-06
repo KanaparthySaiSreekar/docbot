@@ -4,13 +4,13 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from pydantic import BaseModel
 
 from docbot.auth import require_auth
 from docbot.config import get_settings
 from docbot.database import get_db
-from docbot.timezone_utils import ist_now
+from docbot.timezone_utils import ist_now, utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,23 @@ class SettingsResponse(BaseModel):
     break_start: str
     break_end: str
     slot_duration_minutes: int
+
+
+class CancelResponse(BaseModel):
+    """Response for cancellation."""
+    status: str
+    refund_status: Optional[str] = None
+    calendar_status: Optional[str] = None
+
+
+class RetryRefundResponse(BaseModel):
+    """Response for refund retry."""
+    status: str
+
+
+class ResendResponse(BaseModel):
+    """Response for resend confirmation."""
+    status: str
 
 
 # Utility functions
@@ -270,3 +287,136 @@ async def get_settings_endpoint(
         break_end=schedule.break_end,
         slot_duration_minutes=schedule.slot_duration_minutes
     )
+
+
+@router.post("/appointments/{appointment_id}/cancel", response_model=CancelResponse)
+async def cancel_appointment_endpoint(
+    appointment_id: str,
+    request: Request,
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+):
+    """
+    Cancel an appointment (doctor-initiated, no time restriction).
+
+    Triggers automatic refund for online appointments.
+    Deletes calendar event.
+    """
+    from docbot.cancellation_service import cancel_appointment
+
+    try:
+        # by_patient=False skips the >1 hour check
+        result = await cancel_appointment(db, appointment_id, by_patient=False)
+
+        logger.info(
+            "Appointment cancelled by doctor",
+            extra={
+                "user_email": user.get("email"),
+                "appointment_id": appointment_id,
+                "refund_status": result.get("refund_status")
+            }
+        )
+
+        return CancelResponse(**result)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/refunds/{refund_id}/retry", response_model=RetryRefundResponse)
+async def retry_refund_endpoint(
+    refund_id: str,
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+):
+    """
+    Manually retry a failed refund.
+    """
+    # Get refund record
+    cursor = await db.execute(
+        "SELECT appointment_id, status FROM refunds WHERE id = ?",
+        (refund_id,)
+    )
+    row = await cursor.fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Refund not found")
+
+    appointment_id, status = row
+    if status == "PROCESSED":
+        logger.info(
+            "Refund already processed",
+            extra={"user_email": user.get("email"), "refund_id": refund_id}
+        )
+        return RetryRefundResponse(status="already_processed")
+
+    # Reset retry count and trigger immediate retry
+    from docbot.refund_service import initiate_refund
+
+    await db.execute("DELETE FROM refunds WHERE id = ?", (refund_id,))
+    await db.commit()
+
+    success = await initiate_refund(db, appointment_id)
+
+    logger.info(
+        "Manual refund retry",
+        extra={
+            "user_email": user.get("email"),
+            "refund_id": refund_id,
+            "appointment_id": appointment_id,
+            "success": success
+        }
+    )
+
+    return RetryRefundResponse(status="processed" if success else "pending_retry")
+
+
+@router.post("/appointments/{appointment_id}/resend", response_model=ResendResponse)
+async def resend_confirmation_endpoint(
+    appointment_id: str,
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+):
+    """
+    Resend confirmation message (and Meet link for online) to patient.
+    """
+    cursor = await db.execute(
+        """SELECT patient_phone, patient_name, consultation_type, appointment_date,
+                  slot_time, google_meet_link, language, status
+           FROM appointments WHERE id = ?""",
+        (appointment_id,)
+    )
+    row = await cursor.fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    phone, name, consult_type, date_str, slot_time, meet_link, lang, status = row
+
+    if status not in ['CONFIRMED', 'PENDING_PAYMENT']:
+        raise HTTPException(status_code=400, detail="Cannot resend for cancelled appointments")
+
+    # Build and send message
+    from docbot.whatsapp_client import send_text
+    from docbot.i18n import get_message
+
+    if consult_type == "online" and meet_link:
+        message = get_message("payment_received_meet_link", lang=lang,
+                             date=date_str, time=slot_time, meet_link=meet_link)
+    else:
+        settings = get_settings()
+        message = get_message("booking_confirmed_offline", lang=lang,
+                             name=name, date=date_str, time=slot_time,
+                             clinic_address=settings.clinic.address)
+
+    result = await send_text(phone, message)
+
+    logger.info(
+        "Confirmation resent",
+        extra={
+            "user_email": user.get("email"),
+            "appointment_id": appointment_id,
+            "sent": result is not None
+        }
+    )
+
+    return ResendResponse(status="sent" if result else "failed")

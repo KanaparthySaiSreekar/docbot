@@ -77,6 +77,18 @@ app.add_middleware(
     same_site="lax"
 )
 
+# Add CSRF protection (after SessionMiddleware) - skip in test environment
+if settings.app.env != "test":
+    from starlette_csrf import CSRFMiddleware
+    app.add_middleware(
+        CSRFMiddleware,
+        secret=settings.auth.session_secret_key or "dev-secret-key-change-in-prod",
+        cookie_name="csrftoken",
+        cookie_secure=(settings.app.env == "prod"),
+        cookie_samesite="lax",
+        header_name="X-CSRF-Token",
+    )
+
 # Include auth router
 from docbot import auth
 app.include_router(auth.router)

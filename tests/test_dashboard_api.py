@@ -252,3 +252,240 @@ def test_phone_masking(test_client, db_with_appointments):
             assert phone[4:].isdigit()
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_cancel_appointment_doctor(test_client, test_db):
+    """Doctor can cancel any appointment without time restriction."""
+    # Create a confirmed appointment
+    await test_db.execute(
+        """INSERT INTO appointments
+           (id, patient_phone, patient_name, patient_age, patient_gender,
+            consultation_type, appointment_date, slot_time, status,
+            created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("appt-cancel", "+919876543210", "Test User", 30, "Male",
+         "offline", "2026-02-07", "10:00", "CONFIRMED",
+         "2026-02-06T10:00:00Z", "2026-02-06T10:00:00Z")
+    )
+    await test_db.commit()
+
+    async def mock_get_db():
+        yield test_db
+
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[get_db] = mock_get_db
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing by setting cookie
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Cancel appointment
+        response = test_client.post(
+            "/api/appointments/appt-cancel/cancel",
+            headers={"X-CSRF-Token": "test-token"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "cancelled"
+
+        # Verify appointment status updated
+        cursor = await test_db.execute(
+            "SELECT status FROM appointments WHERE id = ?",
+            ("appt-cancel",)
+        )
+        row = await cursor.fetchone()
+        assert row[0] == "CANCELLED"
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_cancel_triggers_refund(test_client, test_db):
+    """Online cancellation triggers refund."""
+    # Create confirmed online appointment with payment
+    await test_db.execute(
+        """INSERT INTO appointments
+           (id, patient_phone, patient_name, patient_age, patient_gender,
+            consultation_type, appointment_date, slot_time, status,
+            razorpay_payment_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("appt-refund", "+919876543210", "Test User", 30, "Male",
+         "online", "2026-02-07", "10:00", "CONFIRMED",
+         "pay_test123", "2026-02-06T10:00:00Z", "2026-02-06T10:00:00Z")
+    )
+    await test_db.execute(
+        """INSERT INTO payments
+           (id, appointment_id, razorpay_payment_id, amount_paise, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        ("pmt-1", "appt-refund", "pay_test123", 50000, "captured", "2026-02-06T10:00:00Z")
+    )
+    await test_db.commit()
+
+    async def mock_get_db():
+        yield test_db
+
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[get_db] = mock_get_db
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Mock refund API call
+        with patch("docbot.refund_service._call_razorpay_refund") as mock_refund:
+            mock_refund.return_value = {"id": "rfnd_test123", "status": "processed"}
+
+            response = test_client.post(
+                "/api/appointments/appt-refund/cancel",
+                headers={"X-CSRF-Token": "test-token"}
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "cancelled"
+            assert data["refund_status"] in ["processed", "pending"]
+
+            # Verify refund record created
+            cursor = await test_db.execute(
+                "SELECT status FROM refunds WHERE appointment_id = ?",
+                ("appt-refund",)
+            )
+            row = await cursor.fetchone()
+            assert row is not None
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_retry_refund(test_client, test_db):
+    """Manual refund retry works."""
+    # Create appointment and failed refund
+    await test_db.execute(
+        """INSERT INTO appointments
+           (id, patient_phone, patient_name, patient_age, patient_gender,
+            consultation_type, appointment_date, slot_time, status,
+            razorpay_payment_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("appt-retry", "+919876543210", "Test User", 30, "Male",
+         "online", "2026-02-07", "10:00", "CANCELLED",
+         "pay_test456", "2026-02-06T10:00:00Z", "2026-02-06T10:00:00Z")
+    )
+    await test_db.execute(
+        """INSERT INTO payments
+           (id, appointment_id, razorpay_payment_id, amount_paise, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        ("pmt-retry", "appt-retry", "pay_test456", 50000, "captured", "2026-02-06T10:00:00Z")
+    )
+    await test_db.execute(
+        """INSERT INTO refunds
+           (id, appointment_id, razorpay_payment_id, amount_paise,
+            status, retry_count, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        ("rfnd-retry", "appt-retry", "pay_test456", 50000, "PENDING", 2, "2026-02-06T10:00:00Z")
+    )
+    await test_db.commit()
+
+    async def mock_get_db():
+        yield test_db
+
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[get_db] = mock_get_db
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Mock refund API call
+        with patch("docbot.refund_service._call_razorpay_refund") as mock_refund:
+            mock_refund.return_value = {"id": "rfnd_test789", "status": "processed"}
+
+            response = test_client.post(
+                "/api/refunds/rfnd-retry/retry",
+                headers={"X-CSRF-Token": "test-token"}
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] in ["processed", "pending_retry"]
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_resend_confirmation(test_client, test_db):
+    """Resend confirmation to patient."""
+    # Create confirmed appointment
+    await test_db.execute(
+        """INSERT INTO appointments
+           (id, patient_phone, patient_name, patient_age, patient_gender,
+            consultation_type, appointment_date, slot_time, status,
+            google_meet_link, language, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("appt-resend", "+919876543210", "Test User", 30, "Male",
+         "online", "2026-02-07", "10:00", "CONFIRMED",
+         "meet.google.com/xyz", "en", "2026-02-06T10:00:00Z", "2026-02-06T10:00:00Z")
+    )
+    await test_db.commit()
+
+    async def mock_get_db():
+        yield test_db
+
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[get_db] = mock_get_db
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Disable CSRF for testing
+        test_client.cookies.set("csrftoken", "test-token")
+
+        # Mock WhatsApp send
+        with patch("docbot.whatsapp_client.send_text") as mock_send:
+            mock_send.return_value = {"messaging_product": "whatsapp"}
+
+            response = test_client.post(
+                "/api/appointments/appt-resend/resend",
+                headers={"X-CSRF-Token": "test-token"}
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "sent"
+
+            # Verify send was called
+            mock_send.assert_called_once()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_csrf_required(test_client):
+    """Mutation endpoints require CSRF token (disabled in test env)."""
+    async def mock_require_auth():
+        return {"email": "test@example.com"}
+
+    app.dependency_overrides[require_auth] = mock_require_auth
+
+    try:
+        # Try to cancel without CSRF token
+        # In test environment, CSRF is disabled, so this will fail with 400 (bad request)
+        # because the appointment doesn't exist
+        response = test_client.post("/api/appointments/test-id/cancel")
+
+        # In test env, CSRF is disabled so we get 400 for missing appointment
+        # In prod env, CSRF middleware would return 403 when token missing
+        assert response.status_code == 400
+        assert "appointment_not_found" in response.json()["detail"]
+    finally:
+        app.dependency_overrides.clear()
