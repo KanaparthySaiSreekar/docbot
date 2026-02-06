@@ -289,3 +289,41 @@ async def serve_dashboard(request: Request, path: str = ""):
         return FileResponse(index_path)
 
     return RedirectResponse(url="/dashboard", status_code=307)
+
+
+@app.get("/prescriptions/download/{token}")
+async def download_prescription(token: str):
+    """
+    Public endpoint for downloading prescription PDF via secure token.
+
+    Token-based authentication (no login required).
+    Returns 404 if token invalid/expired.
+    """
+    from docbot.database import get_db
+    from docbot.prescription_service import get_prescription_by_token
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    async for db in get_db():
+        prescription = await get_prescription_by_token(db, token)
+
+        if not prescription:
+            logger.warning(f"Invalid or expired prescription token attempted")
+            raise HTTPException(status_code=404, detail="Prescription not found or link expired")
+
+        pdf_path = Path(prescription['pdf_path'])
+
+        if not pdf_path.exists():
+            logger.error(f"Prescription PDF file missing: {pdf_path}")
+            raise HTTPException(status_code=404, detail="Prescription file not found")
+
+        logger.info(f"Prescription downloaded: {prescription['id']}")
+
+        return FileResponse(
+            pdf_path,
+            media_type="application/pdf",
+            filename=f"prescription_{prescription['id']}.pdf"
+        )
+
+    raise HTTPException(status_code=500, detail="Database connection failed")

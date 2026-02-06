@@ -126,6 +126,32 @@ class EmergencyStatusResponse(BaseModel):
     readonly_dashboard: bool
 
 
+class MedicineItem(BaseModel):
+    """Medicine item for prescription."""
+    name: str
+    dosage: str
+    frequency: str  # e.g., "1-0-1" or "Once daily"
+    duration: str  # e.g., "5 days"
+    notes: str | None = None
+
+
+class CreatePrescriptionRequest(BaseModel):
+    """Request body for creating prescription."""
+    appointment_id: str
+    medicines: list[MedicineItem]
+    instructions: str | None = None
+
+
+class PrescriptionResponse(BaseModel):
+    """Prescription response with download URL."""
+    id: str
+    appointment_id: str
+    patient_name: str
+    created_at: str
+    whatsapp_sent: bool
+    download_url: str
+
+
 # Utility functions
 
 def mask_phone(phone: str) -> str:
@@ -567,3 +593,209 @@ async def resend_confirmation_endpoint(
     )
 
     return ResendResponse(status="sent" if result else "failed")
+
+
+@router.get("/appointments/completed")
+async def get_completed_appointments(
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+) -> list[AppointmentListItem]:
+    """
+    Get completed appointments without prescriptions for prescription creation.
+
+    Returns appointments with status=CONFIRMED, date < today, and no existing prescription.
+    """
+    today = ist_now().strftime("%Y-%m-%d")
+
+    query = """
+        SELECT
+            a.id, a.patient_name, a.patient_age, a.patient_gender, a.patient_phone,
+            a.consultation_type, a.appointment_date, a.slot_time, a.status,
+            a.google_meet_link, r.status as refund_status
+        FROM appointments a
+        LEFT JOIN refunds r ON a.id = r.appointment_id
+        LEFT JOIN prescriptions p ON a.id = p.appointment_id
+        WHERE a.status = 'CONFIRMED'
+          AND a.appointment_date < ?
+          AND p.id IS NULL
+        ORDER BY a.appointment_date DESC, a.slot_time DESC
+    """
+
+    cursor = await db.execute(query, [today])
+    rows = await cursor.fetchall()
+
+    appointments = []
+    for row in rows:
+        appointments.append(AppointmentListItem(
+            id=row[0],
+            patient_name=row[1],
+            patient_age=row[2],
+            patient_gender=row[3],
+            patient_phone=mask_phone(row[4]),
+            consultation_type=row[5],
+            appointment_date=row[6],
+            slot_time=row[7],
+            status=row[8],
+            google_meet_link=row[9],
+            refund_status=row[10]
+        ))
+
+    logger.info(
+        "Completed appointments fetched",
+        extra={
+            "user_email": user.get("email"),
+            "count": len(appointments)
+        }
+    )
+
+    return appointments
+
+
+@router.post("/prescriptions", response_model=PrescriptionResponse)
+async def create_prescription_endpoint(
+    request_data: CreatePrescriptionRequest,
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+):
+    """
+    Create prescription for an appointment.
+
+    Generates PDF and sends to patient via WhatsApp with secure download link.
+    """
+    check_readonly()
+
+    from docbot.prescription_service import create_prescription, mark_whatsapp_sent
+    from docbot.whatsapp_client import send_text
+    from docbot.i18n import get_message
+
+    try:
+        # Convert Pydantic models to dicts
+        medicines = [med.model_dump() for med in request_data.medicines]
+
+        # Create prescription (generates PDF)
+        prescription = await create_prescription(
+            db,
+            request_data.appointment_id,
+            medicines,
+            request_data.instructions
+        )
+
+        # Get appointment details for WhatsApp message
+        cursor = await db.execute(
+            "SELECT patient_phone, patient_name, language FROM appointments WHERE id = ?",
+            (request_data.appointment_id,)
+        )
+        appt_row = await cursor.fetchone()
+        if appt_row:
+            phone, patient_name, lang = appt_row
+
+            # Generate download URL
+            settings = get_settings()
+            base_url = settings.app.base_url or "http://localhost:8000"
+            download_url = f"{base_url}/prescriptions/download/{prescription['secure_token']}"
+
+            # Send prescription via WhatsApp
+            message = get_message("prescription_ready", lang=lang,
+                                 name=patient_name, download_link=download_url)
+            result = await send_text(phone, message)
+
+            if result:
+                await mark_whatsapp_sent(db, prescription['id'])
+
+        logger.info(
+            "Prescription created",
+            extra={
+                "user_email": user.get("email"),
+                "prescription_id": prescription['id'],
+                "appointment_id": request_data.appointment_id
+            }
+        )
+
+        return PrescriptionResponse(
+            id=prescription['id'],
+            appointment_id=prescription['appointment_id'],
+            patient_name=patient_name,
+            created_at=prescription['created_at'],
+            whatsapp_sent=result is not None,
+            download_url=download_url
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/prescriptions")
+async def get_prescriptions(
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+) -> list[PrescriptionResponse]:
+    """
+    Get all prescriptions with patient names.
+
+    Returns prescription history sorted by creation date.
+    """
+    query = """
+        SELECT
+            p.id, p.appointment_id, a.patient_name, p.created_at,
+            p.whatsapp_sent, p.secure_token
+        FROM prescriptions p
+        JOIN appointments a ON p.appointment_id = a.id
+        ORDER BY p.created_at DESC
+    """
+
+    cursor = await db.execute(query)
+    rows = await cursor.fetchall()
+
+    settings = get_settings()
+    base_url = settings.app.base_url or "http://localhost:8000"
+
+    prescriptions = []
+    for row in rows:
+        prescriptions.append(PrescriptionResponse(
+            id=row[0],
+            appointment_id=row[1],
+            patient_name=row[2],
+            created_at=row[3],
+            whatsapp_sent=row[4] == "true",
+            download_url=f"{base_url}/prescriptions/download/{row[5]}"
+        ))
+
+    logger.info(
+        "Prescriptions fetched",
+        extra={
+            "user_email": user.get("email"),
+            "count": len(prescriptions)
+        }
+    )
+
+    return prescriptions
+
+
+@router.get("/prescriptions/{prescription_id}/download")
+async def regenerate_prescription_token(
+    prescription_id: str,
+    user: dict = Depends(require_auth),
+    db = Depends(get_db)
+) -> dict:
+    """
+    Regenerate secure token for prescription download.
+
+    Extends access for 72 hours from regeneration.
+    """
+    from docbot.prescription_service import regenerate_token
+
+    new_token = await regenerate_token(db, prescription_id)
+
+    settings = get_settings()
+    base_url = settings.app.base_url or "http://localhost:8000"
+    download_url = f"{base_url}/prescriptions/download/{new_token}"
+
+    logger.info(
+        "Prescription token regenerated",
+        extra={
+            "user_email": user.get("email"),
+            "prescription_id": prescription_id
+        }
+    )
+
+    return {"download_url": download_url}
