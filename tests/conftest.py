@@ -34,13 +34,15 @@ async def test_db() -> AsyncGenerator[aiosqlite.Connection, None]:
     # Use WAL mode
     await conn.execute("PRAGMA journal_mode = WAL")
 
-    # Load schema
-    schema_path = Path("db/001_initial_schema.sql")
-    if schema_path.exists():
-        with open(schema_path, "r", encoding="utf-8") as f:
-            schema_sql = f.read()
-        await conn.executescript(schema_sql)
-        await conn.commit()
+    # Load all schema files in sorted order
+    schema_dir = Path("db")
+    if schema_dir.exists():
+        schema_files = sorted(schema_dir.glob("*.sql"))
+        for schema_path in schema_files:
+            with open(schema_path, "r", encoding="utf-8") as f:
+                schema_sql = f.read()
+            await conn.executescript(schema_sql)
+            await conn.commit()
 
     yield conn
 

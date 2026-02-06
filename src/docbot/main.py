@@ -75,6 +75,10 @@ app.add_middleware(
 from docbot import auth
 app.include_router(auth.router)
 
+# Include webhook router
+from docbot import webhook
+app.include_router(webhook.router)
+
 
 @app.middleware("http")
 async def request_logging_middleware(request: Request, call_next):
