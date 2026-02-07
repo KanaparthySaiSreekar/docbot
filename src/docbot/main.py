@@ -225,21 +225,16 @@ async def download_prescription(token: str):
 @app.get("/")
 async def landing_page(request: Request):
     """
-    Landing page - serves React SPA which handles landing vs dashboard display.
-    If user is authenticated, redirect to dashboard. Otherwise serve React app.
+    Landing page - serves React SPA.
+    React app handles routing for landing, login, and about pages.
     """
-    user = request.session.get('user')
-
-    if user:
-        return RedirectResponse(url="/dashboard")
-
-    # Serve React SPA (landing page is rendered by React)
+    # Serve React SPA
     frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
     if frontend_dist.exists():
         return FileResponse(frontend_dist / "index.html")
 
-    # Fallback to Jinja login for development without build
-    return templates.TemplateResponse("login.html", {"request": request})
+    # Fallback for development without frontend build
+    return {"message": "Frontend not built. Run 'npm run build' in frontend/"}
 
 
 @app.get("/auth/error")
@@ -257,16 +252,9 @@ async def auth_error_page(request: Request):
 @app.get("/dashboard")
 async def dashboard(request: Request):
     """
-    Protected dashboard route - serves React app.
-
-    Redirects to login page if not authenticated.
+    Dashboard route - serves React SPA.
+    React app's AuthGuard handles authentication checks.
     """
-    user = request.session.get('user')
-
-    if not user:
-        # Redirect to landing page for GET requests
-        return RedirectResponse(url="/", status_code=307)
-
     # Serve React app if built
     frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
     if frontend_dist.exists():
@@ -275,7 +263,6 @@ async def dashboard(request: Request):
     # Fallback for development
     return {
         "message": "Dashboard - run 'npm run build' in frontend/",
-        "user": user.get("email") if isinstance(user, dict) else None
     }
 
 
