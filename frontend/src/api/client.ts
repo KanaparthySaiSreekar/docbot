@@ -17,7 +17,7 @@ class ApiClient {
 
     if (response.status === 401) {
       // Redirect to login
-      window.location.href = '/';
+      window.location.href = '/auth/login';
       throw new Error('Not authenticated');
     }
 

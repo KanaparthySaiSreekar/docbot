@@ -172,6 +172,16 @@ def check_readonly() -> None:
 
 # Endpoints
 
+@router.get("/me")
+async def get_current_user(user: dict = Depends(require_auth)):
+    """Return the current authenticated user's info."""
+    return {
+        "email": user.get("email"),
+        "name": user.get("name"),
+        "picture": user.get("picture"),
+    }
+
+
 @router.get("/appointments")
 async def get_appointments(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),

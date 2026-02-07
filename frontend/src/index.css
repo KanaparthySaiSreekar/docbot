@@ -1,3 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-clinical-800 antialiased;
+    background: #f8fafb;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass;
+  }
+
+  .glass-solid {
+    @apply bg-white/90 backdrop-blur-xl border border-clinical-100 shadow-glass;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-lg border border-white/30 shadow-card rounded-2xl transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply shadow-card-hover border-primary-200/40;
+  }
+
+  .glass-sidebar {
+    @apply bg-white/80 backdrop-blur-2xl border-r border-clinical-100/50 shadow-sidebar;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary-500 to-primary-700;
+  }
+
+  .gradient-accent {
+    @apply bg-gradient-to-br from-accent-500 to-primary-600;
+  }
+
+  .gradient-hero {
+    background: linear-gradient(135deg, #ccfbf1 0%, #dbeafe 40%, #f0fdfa 100%);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600;
+  }
+
+  /* Decorative orbs */
+  .orb {
+    @apply absolute rounded-full pointer-events-none;
+    filter: blur(80px);
+  }
+
+  .orb-teal {
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.25), transparent 70%);
+  }
+
+  .orb-blue {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.2), transparent 70%);
+  }
+
+  .orb-purple {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 70%);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-clinical-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-clinical-400;
+}

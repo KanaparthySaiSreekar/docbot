@@ -19,7 +19,7 @@ async function postWithCSRF<T>(path: string, data?: unknown): Promise<T> {
   });
 
   if (response.status === 401) {
-    window.location.href = '/';
+    window.location.href = '/auth/login';
     throw new Error('Not authenticated');
   }
 

@@ -225,15 +225,20 @@ async def download_prescription(token: str):
 @app.get("/")
 async def landing_page(request: Request):
     """
-    Landing page - shows login if not authenticated, redirects to dashboard if authenticated.
+    Landing page - serves React SPA which handles landing vs dashboard display.
+    If user is authenticated, redirect to dashboard. Otherwise serve React app.
     """
     user = request.session.get('user')
 
     if user:
-        # User is already logged in, redirect to dashboard
         return RedirectResponse(url="/dashboard")
 
-    # Show login page
+    # Serve React SPA (landing page is rendered by React)
+    frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+    if frontend_dist.exists():
+        return FileResponse(frontend_dist / "index.html")
+
+    # Fallback to Jinja login for development without build
     return templates.TemplateResponse("login.html", {"request": request})
 
 
@@ -291,41 +296,3 @@ async def serve_dashboard(request: Request, path: str = ""):
         return FileResponse(index_path)
 
     return RedirectResponse(url="/dashboard", status_code=307)
-
-
-@app.get("/prescriptions/download/{token}")
-async def download_prescription(token: str):
-    """
-    Public endpoint for downloading prescription PDF via secure token.
-
-    Token-based authentication (no login required).
-    Returns 404 if token invalid/expired.
-    """
-    from docbot.database import get_db
-    from docbot.prescription_service import get_prescription_by_token
-    import logging
-
-    logger = logging.getLogger(__name__)
-
-    async for db in get_db():
-        prescription = await get_prescription_by_token(db, token)
-
-        if not prescription:
-            logger.warning(f"Invalid or expired prescription token attempted")
-            raise HTTPException(status_code=404, detail="Prescription not found or link expired")
-
-        pdf_path = Path(prescription['pdf_path'])
-
-        if not pdf_path.exists():
-            logger.error(f"Prescription PDF file missing: {pdf_path}")
-            raise HTTPException(status_code=404, detail="Prescription file not found")
-
-        logger.info(f"Prescription downloaded: {prescription['id']}")
-
-        return FileResponse(
-            pdf_path,
-            media_type="application/pdf",
-            filename=f"prescription_{prescription['id']}.pdf"
-        )
-
-    raise HTTPException(status_code=500, detail="Database connection failed")
