@@ -1,6 +1,7 @@
 """Database connection and initialization for SQLite with WAL mode."""
 
 import logging
+import sqlite3
 from pathlib import Path
 from typing import AsyncGenerator
 
@@ -43,7 +44,8 @@ async def init_db() -> None:
     Initialize database by executing all schema SQL scripts.
 
     Loads all .sql files from db/ directory in sorted order.
-    Safe to run multiple times - uses CREATE TABLE IF NOT EXISTS.
+    Tracks applied migrations in schema_migrations table to ensure
+    each file is only executed once.
     """
     settings = get_settings()
     db_path = Path(settings.database.path)
@@ -62,13 +64,41 @@ async def init_db() -> None:
 
     logger.info(f"Initializing database at {db_path}")
 
-    # Execute each schema file in order
     async with aiosqlite.connect(str(db_path)) as conn:
+        # Create migration tracking table if it doesn't exist
+        await conn.executescript(
+            "CREATE TABLE IF NOT EXISTS schema_migrations "
+            "(filename TEXT PRIMARY KEY, applied_at TEXT DEFAULT (datetime('now')));"
+        )
+        await conn.commit()
+
+        # Get already-applied migrations
+        cursor = await conn.execute("SELECT filename FROM schema_migrations")
+        applied = {row[0] for row in await cursor.fetchall()}
+
+        # Execute each schema file in order, skipping already-applied ones
         for schema_path in schema_files:
+            if schema_path.name in applied:
+                logger.info(f"Skipping already-applied schema: {schema_path.name}")
+                continue
             logger.info(f"Executing schema: {schema_path.name}")
             with open(schema_path, "r", encoding="utf-8") as f:
                 schema_sql = f.read()
-            await conn.executescript(schema_sql)
+            try:
+                await conn.executescript(schema_sql)
+            except sqlite3.OperationalError as e:
+                # "duplicate column name" means this migration was already applied
+                # before migration tracking was introduced — treat as applied.
+                if "duplicate column name" in str(e):
+                    logger.info(
+                        f"Schema {schema_path.name} already applied (columns exist), marking as done"
+                    )
+                else:
+                    raise
+            await conn.execute(
+                "INSERT INTO schema_migrations (filename) VALUES (?)",
+                (schema_path.name,),
+            )
             await conn.commit()
 
     logger.info(f"Database initialized successfully at {db_path}")
