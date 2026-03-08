@@ -2,14 +2,18 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export function DNAHelix() {
+interface DNAHelixProps {
+  basePairs?: number;
+}
+
+export function DNAHelix({ basePairs: basePairsProp }: DNAHelixProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   const { spheres, bonds } = useMemo(() => {
     const sphereData: { position: [number, number, number]; color: string }[] = [];
     const bondData: { start: [number, number, number]; end: [number, number, number] }[] = [];
 
-    const basePairs = 30;
+    const basePairs = basePairsProp ?? 30;
     const radius = 1.2;
     const ySpacing = 0.4;
     const offset = (basePairs * ySpacing) / 2;
@@ -42,7 +46,7 @@ export function DNAHelix() {
     }
 
     return { spheres: sphereData, bonds: bondData };
-  }, []);
+  }, [basePairsProp]);
 
   useFrame((_, delta) => {
     if (groupRef.current) {
@@ -65,19 +69,14 @@ export function DNAHelix() {
         const start = new THREE.Vector3(...bond.start);
         const end = new THREE.Vector3(...bond.end);
         const mid = start.clone().add(end).multiplyScalar(0.5);
-        const direction = end.clone().sub(start);
-        const length = direction.length();
+        const length = start.distanceTo(end);
+        const dir = end.clone().sub(start).normalize();
+        const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
 
         return (
-          <mesh key={`bond-${i}`} position={mid}>
+          <mesh key={`bond-${i}`} position={mid} quaternion={quat}>
             <cylinderGeometry args={[0.02, 0.02, length, 8]} />
             <meshStandardMaterial color="#d6d3d1" roughness={0.5} transparent opacity={0.6} />
-            <primitive object={new THREE.Object3D()} ref={(obj: THREE.Object3D | null) => {
-              if (obj?.parent) {
-                obj.parent.lookAt(end);
-                obj.parent.rotateX(Math.PI / 2);
-              }
-            }} />
           </mesh>
         );
       })}

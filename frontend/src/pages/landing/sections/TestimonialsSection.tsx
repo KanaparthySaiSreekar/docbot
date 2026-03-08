@@ -5,21 +5,33 @@ import { blurFocus, wideStaggerContainer, flipIn } from '@/lib/animations';
 
 const testimonials = [
   {
-    name: 'Priya S.',
-    role: 'Patient',
-    content: 'Booking through WhatsApp was incredibly easy. I got my appointment confirmed in under a minute! The video consultation was seamless.',
+    name: 'Lakshmi Kumari',
+    content: 'With all your great medications, I am almost normal and got a very good relief from Rheumatoid arthritis. Thank you very much for your great treatment.',
     rating: 5,
   },
   {
-    name: 'Rahul M.',
-    role: 'Patient',
-    content: 'I love how I get my prescriptions directly on WhatsApp. No more carrying paper prescriptions to the pharmacy.',
+    name: 'Murali Ammigalla',
+    content: 'Took treatment for several years elsewhere but none of them succeeded. Then I came to Dr. Alivelu and took Homoeopathy treatment. To my surprise, my wife conceived within 2 months of her treatment. We are very happy and grateful!',
     rating: 5,
   },
   {
-    name: 'Anita K.',
-    role: 'Patient',
-    content: 'The online consultation feature saved me a trip to the clinic. Doctor was very thorough and the digital prescription was so convenient.',
+    name: 'Jayalalitha Kadam',
+    content: 'Dr. Alivelu is an excellent homoeopathy doctor. She listens to complaints very patiently and counsels about the condition in a very simple way. I was diagnosed with PCOS having irregular menses — after her treatment, the cyst disappeared and menses became regular.',
+    rating: 5,
+  },
+  {
+    name: 'Srimayee P.',
+    content: 'I had been struggling with sinus for years and tried many treatments without success. Doctor took the time to understand my concerns, explained the treatment plan in detail, and prescribed remedies tailored to my needs. The results have been remarkable!',
+    rating: 5,
+  },
+  {
+    name: 'Leena Hari',
+    content: 'I reached out to Dr. Alivelu for my long-standing migraine, which had been bothering me for years. She listened to my symptoms with great care, and her treatment was amazing. I feel much better now and have been able to overcome it.',
+    rating: 5,
+  },
+  {
+    name: 'Satish Gopal',
+    content: 'I have been taking medicine from Dr. Alivelu for the past year and there has been considerable improvement. She spends a lot of time going to the root cause of the problem to give an effective medicine. I would highly recommend her.',
     rating: 5,
   },
 ];
@@ -28,20 +40,20 @@ export function TestimonialsSection() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section id="testimonials" className="py-24 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 relative">
         <ScrollReveal variants={blurFocus} className="text-center mb-16">
           <h2 className="text-4xl font-display font-bold text-clinical-800 mb-4">
-            Loved by Patients
+            What Our Patients Say
           </h2>
           <p className="text-lg text-clinical-500 max-w-2xl mx-auto">
-            See what our patients are saying about their experience.
+            Real reviews from our patients on Google.
           </p>
         </ScrollReveal>
 
         {prefersReducedMotion ? (
           <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map(({ name, role, content, rating }) => (
+            {testimonials.map(({ name, content, rating }) => (
               <div key={name} className="glass-card p-6 h-full flex flex-col">
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: rating }).map((_, i) => (
@@ -55,7 +67,7 @@ export function TestimonialsSection() {
                   </div>
                   <div>
                     <p className="font-medium text-clinical-800">{name}</p>
-                    <p className="text-xs text-clinical-400">{role}</p>
+                    <p className="text-xs text-clinical-400">Patient</p>
                   </div>
                 </div>
               </div>
@@ -70,7 +82,7 @@ export function TestimonialsSection() {
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
           >
-            {testimonials.map(({ name, role, content, rating }) => (
+            {testimonials.map(({ name, content, rating }) => (
               <motion.div key={name} variants={flipIn}>
                 <div className="glass-card p-6 h-full flex flex-col">
                   <div className="flex gap-1 mb-4">
@@ -85,7 +97,7 @@ export function TestimonialsSection() {
                     </div>
                     <div>
                       <p className="font-medium text-clinical-800">{name}</p>
-                      <p className="text-xs text-clinical-400">{role}</p>
+                      <p className="text-xs text-clinical-400">Patient</p>
                     </div>
                   </div>
                 </div>

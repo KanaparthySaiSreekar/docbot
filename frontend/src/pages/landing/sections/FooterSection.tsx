@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Activity, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
+import { Logo } from '@/components/icons/Logo';
 import { ScrollReveal } from '@/components/motion/ScrollReveal';
 import { fadeIn } from '@/lib/animations';
 
@@ -11,9 +12,9 @@ export function FooterSection() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <Link to="/" className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Activity className="w-4 h-4 text-white" />
+                <Logo className="w-4 h-4 text-white" />
               </div>
-              <span className="font-display font-bold text-clinical-800">DocBot</span>
+              <span className="font-display font-bold text-clinical-800">ShivaPuja Homeo</span>
             </Link>
 
             <nav className="flex items-center gap-6 text-sm text-clinical-500">
@@ -24,7 +25,7 @@ export function FooterSection() {
             </nav>
 
             <p className="text-sm text-clinical-400 flex items-center gap-1">
-              Made with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> DocBot {new Date().getFullYear()}
+              Made with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> ShivaPuja Homeo {new Date().getFullYear()}
             </p>
           </div>
         </div>

@@ -1,90 +1,120 @@
-"""Structured JSON logging with request correlation."""
+"""Pretty console logging with loguru + stdlib intercept."""
 
 import logging
 import sys
 from contextvars import ContextVar
-from typing import Any
 
-from pythonjsonlogger import jsonlogger
-
+from loguru import logger
 
 # Context variable for request correlation
 request_id_var: ContextVar[str] = ContextVar("request_id", default="")
 
 
-class RequestIdFilter(logging.Filter):
-    """Add request_id to log records from context variable."""
+class InterceptHandler(logging.Handler):
+    """Route all stdlib logging through loguru, preserving caller info and extras."""
 
-    def filter(self, record: logging.LogRecord) -> bool:
-        """Add request_id from context to record."""
-        request_id = request_id_var.get("")
-        if request_id:
-            record.request_id = request_id
-        return True
+    def emit(self, record: logging.LogRecord) -> None:
+        # Find loguru level matching the stdlib level
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Pass stdlib extras through to loguru
+        # Filter out standard LogRecord attributes to get only user extras
+        standard_attrs = {
+            "name", "msg", "args", "created", "relativeCreated", "exc_info",
+            "exc_text", "stack_info", "lineno", "funcName", "filename",
+            "module", "pathname", "levelname", "levelno", "msecs", "message",
+            "taskName", "process", "processName", "thread", "threadName",
+        }
+        extras = {
+            k: v for k, v in record.__dict__.items()
+            if k not in standard_attrs and not k.startswith("_")
+        }
+
+        # Use the stdlib record's own caller info for accurate source location
+        extras["_stdlib_name"] = record.name
+        extras["_stdlib_func"] = record.funcName
+        extras["_stdlib_line"] = record.lineno
+
+        # Use depth=1 and patch to override the caller info from the record
+        logger.bind(**extras).opt(exception=record.exc_info).log(
+            level, record.getMessage()
+        )
 
 
-class CustomJsonFormatter(jsonlogger.JsonFormatter):
-    """Custom JSON formatter with consistent field names."""
+def _escape(text: str) -> str:
+    """Escape angle brackets so loguru doesn't treat them as color tags."""
+    return str(text).replace("<", r"\<").replace(">", r"\>")
 
-    def add_fields(
-        self,
-        log_record: dict[str, Any],
-        record: logging.LogRecord,
-        message_dict: dict[str, Any]
-    ) -> None:
-        """Add standard fields to JSON log output."""
-        super().add_fields(log_record, record, message_dict)
 
-        # Add standard fields
-        log_record["timestamp"] = self.formatTime(record, self.datefmt)
-        log_record["level"] = record.levelname
-        log_record["logger_name"] = record.name
-        log_record["message"] = record.getMessage()
+def _format(record: dict) -> str:
+    """Build a pretty log format string with optional extras."""
+    extra = record["extra"]
 
-        # Add request_id if present
-        if hasattr(record, "request_id"):
-            log_record["request_id"] = record.request_id
+    # Use stdlib caller info if intercepted, otherwise use loguru's
+    name = _escape(extra.get("_stdlib_name", record["name"]))
+    func = _escape(extra.get("_stdlib_func", record["function"]))
+    line = extra.get("_stdlib_line", record["line"])
 
-        # Add exception info if present
-        if record.exc_info:
-            log_record["exception"] = self.formatException(record.exc_info)
+    # Base format with color-coded level and module
+    fmt = (
+        f"<green>{{time:HH:mm:ss}}</green> | "
+        f"<level>{{level: <8}}</level> | "
+        f"<cyan>{name}</cyan>:<cyan>{func}</cyan>:<cyan>{line}</cyan> - "
+        f"<level>{{message}}</level>"
+    )
+
+    # Append request_id if present in extra
+    req_id = extra.get("request_id")
+    if req_id:
+        fmt += f"  <dim>[{_escape(req_id):.8}]</dim>"
+
+    # Append any other structured extras (skip internal keys)
+    skip_keys = {"request_id", "_stdlib_name", "_stdlib_func", "_stdlib_line"}
+    visible_extras = {
+        k: v for k, v in extra.items()
+        if k not in skip_keys and not k.startswith("_")
+    }
+    if visible_extras:
+        parts = " ".join(
+            f"<dim>{_escape(k)}</dim>=<yellow>{_escape(v)}</yellow>"
+            for k, v in visible_extras.items()
+        )
+        fmt += "  " + parts
+
+    fmt += "\n"
+
+    if record["exception"]:
+        fmt += "{exception}\n"
+
+    return fmt
 
 
 def setup_logging(log_level: str = "INFO") -> None:
     """
-    Configure structured JSON logging for the application.
+    Configure loguru for pretty console output and intercept stdlib logging.
 
-    All logs are output as one JSON object per line to stdout.
-    Includes timestamp, level, logger_name, message, and optional request_id.
-
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    All existing code using `logging.getLogger(__name__)` will automatically
+    route through loguru with zero changes needed.
     """
-    # Get root logger
-    root_logger = logging.getLogger()
+    # Remove default loguru handler
+    logger.remove()
 
-    # Remove existing handlers
-    for handler in root_logger.handlers[:]:
-        root_logger.removeHandler(handler)
-
-    # Create console handler with JSON formatter
-    console_handler = logging.StreamHandler(sys.stdout)
-    json_formatter = CustomJsonFormatter(
-        "%(timestamp)s %(level)s %(logger_name)s %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S.%fZ"
+    # Add pretty console handler
+    logger.add(
+        sys.stdout,
+        format=_format,
+        level=log_level.upper(),
+        colorize=True,
+        backtrace=True,
+        diagnose=True,
     )
-    console_handler.setFormatter(json_formatter)
 
-    # Add request ID filter
-    console_handler.addFilter(RequestIdFilter())
+    # Intercept all stdlib logging
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
-    # Configure root logger
-    root_logger.addHandler(console_handler)
-    root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-
-    # Suppress noisy uvicorn access logs (we have our own request middleware)
-    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
-    logging.getLogger("uvicorn.access").propagate = False
-
-    # Keep uvicorn error logs
-    logging.getLogger("uvicorn.error").setLevel(logging.INFO)
+    # Suppress noisy loggers
+    for noisy in ("uvicorn.access", "aiosqlite", "httpx", "httpcore"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)

@@ -1,14 +1,21 @@
+import { WhatsAppButton } from '@/components/WhatsAppButton';
+import { InfoBar } from './sections/InfoBar';
 import { Navbar } from './sections/Navbar';
 import { HeroSection } from './sections/HeroSection';
 import { FeaturesSection } from './sections/FeaturesSection';
 import { StatsSection } from './sections/StatsSection';
+import { BookingSection } from './sections/BookingSection';
 import { HowItWorksSection } from './sections/HowItWorksSection';
 import { TestimonialsSection } from './sections/TestimonialsSection';
-import { CTASection } from './sections/CTASection';
+import { DepartmentsSection } from './sections/DepartmentsSection';
+import { AboutSection } from './sections/AboutSection';
+import { FAQSection } from './sections/FAQSection';
 import { FooterSection } from './sections/FooterSection';
 
 export default function LandingPage() {
   return (
+    <>
+    <WhatsAppButton />
     <div className="min-h-screen gradient-hero relative overflow-hidden">
       {/* Full-page grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
@@ -23,15 +30,20 @@ export default function LandingPage() {
 
       {/* All sections sit above the background */}
       <div className="relative">
+        <InfoBar />
         <Navbar />
         <HeroSection />
         <FeaturesSection />
+        <DepartmentsSection />
         <StatsSection />
+        <BookingSection />
         <HowItWorksSection />
         <TestimonialsSection />
-        <CTASection />
+        <AboutSection />
+        <FAQSection />
         <FooterSection />
       </div>
     </div>
+    </>
   );
 }

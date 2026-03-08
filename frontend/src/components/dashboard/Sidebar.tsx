@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Calendar, History, Pill, Settings, X, Activity } from 'lucide-react';
+import { Calendar, History, Pill, Settings, X } from 'lucide-react';
+import { Logo } from '@/components/icons/Logo';
 import { cn } from '@/lib/cn';
 
 interface SidebarProps {
@@ -38,9 +39,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="flex items-center justify-between px-6 py-5 border-b border-clinical-100/50">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
+              <Logo className="w-5 h-5 text-white" />
             </div>
-            <span className="font-display font-bold text-lg text-clinical-800">DocBot</span>
+            <span className="font-display font-bold text-lg text-clinical-800">ShivaPuja Homeo</span>
           </div>
           <button onClick={onClose} className="lg:hidden p-1 hover:bg-clinical-100 rounded-lg">
             <X className="w-5 h-5 text-clinical-500" />
@@ -76,7 +77,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-clinical-100/50">
-          <p className="text-xs text-clinical-400">DocBot Dashboard v1.0</p>
+          <p className="text-xs text-clinical-400">ShivaPuja Homeo v1.0</p>
         </div>
       </aside>
     </>

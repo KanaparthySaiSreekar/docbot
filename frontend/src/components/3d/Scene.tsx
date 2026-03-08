@@ -5,9 +5,11 @@ import { DNAHelix } from './DNAHelix';
 
 interface SceneProps {
   className?: string;
+  tilt?: boolean;
+  basePairs?: number;
 }
 
-export function Scene({ className }: SceneProps) {
+export function Scene({ className, tilt, basePairs }: SceneProps) {
   return (
     <div className={className}>
       <Canvas
@@ -22,7 +24,9 @@ export function Scene({ className }: SceneProps) {
 
         <Suspense fallback={null}>
           <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-            <DNAHelix />
+            <group rotation={tilt ? [0.45, 0, 0.26] : [0, 0, 0]}>
+              <DNAHelix basePairs={basePairs} />
+            </group>
           </Float>
         </Suspense>
       </Canvas>

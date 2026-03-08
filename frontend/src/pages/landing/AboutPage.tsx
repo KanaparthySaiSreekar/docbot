@@ -57,7 +57,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   I believe that technology should empower patients — from easy WhatsApp-based
-                  booking to secure digital prescriptions. That's why I built DocBot: to bridge
+                  booking to secure digital prescriptions. That's why I built ShivaPuja Homeo: to bridge
                   the gap between quality healthcare and convenience.
                 </p>
               </div>

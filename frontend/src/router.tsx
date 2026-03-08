@@ -7,7 +7,6 @@ import { PageSkeleton } from '@/components/ui/Skeleton';
 // Lazy-loaded pages
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
 const LoginPage = lazy(() => import('@/pages/landing/LoginPage'));
-const AboutPage = lazy(() => import('@/pages/landing/AboutPage'));
 const CalendarPage = lazy(() => import('@/pages/dashboard/CalendarPage'));
 const HistoryPage = lazy(() => import('@/pages/dashboard/HistoryPage'));
 const PrescriptionsPage = lazy(() => import('@/pages/dashboard/PrescriptionsPage'));
@@ -34,15 +33,7 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  {
-    path: '/about',
-    element: (
-      <Suspense fallback={<div className="min-h-screen gradient-hero" />}>
-        <AboutPage />
-      </Suspense>
-    ),
-  },
-  {
+{
     element: <AuthGuard />,
     children: [
       {
